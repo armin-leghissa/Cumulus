@@ -36,4 +36,14 @@ The repository has no tests or lint setup.
 
 The plugin ID is `io.github.leghissa.cumulus` (third-party reverse-domain naming; `org.kde.plasma.*` is reserved for Plasma itself). Renaming it means changing the CMake target, `TRANSLATION_DOMAIN`, and the `.pot` name in `Messages.sh` together. `Messages.sh` is the xgettext extraction script for KDE's i18n infrastructure.
 
+## Conventions
+
+**Language:** Code, identifiers, comments, commit messages and repository documentation (README, CLAUDE.md, docs/) are in English. Talk to the user in German.
+
+**QML for UI, C++ for logic:**
+- QML holds the UI structure: layout, visuals, Plasma/Kirigami components, bindings, animations, and purely presentational state (e.g. which view is expanded).
+- C++ holds the program logic: networking, parsing, data models (`QAbstractListModel` subclasses), caching, unit conversion, time and date calculations, configuration handling, and anything else that is non-trivial or worth unit testing.
+- C++ is exposed to QML as custom QML types or helper classes (`QML_ELEMENT` / `QML_SINGLETON`) via properties, signals, and `Q_INVOKABLE`. QML only binds and reacts to them.
+- Keep JavaScript in QML to small expressions and display formatting. No `XMLHttpRequest`, data processing or business rules in QML/JS.
+
 License: LGPL-2.1-or-later (SPDX headers on source files).
