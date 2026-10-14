@@ -7,5 +7,6 @@ ecm_add_tests(
     openmeteotest.cpp
     weathercodetest.cpp
     forecastrowstest.cpp
+    retrytest.cpp
     LINK_LIBRARIES cumulus_core Qt6::Test
 )

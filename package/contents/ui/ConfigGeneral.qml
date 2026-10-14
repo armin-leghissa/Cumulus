@@ -31,6 +31,12 @@ KCM.SimpleKCM {
     property int cfg_visibleColumnsDefault
     property int cfg_hourlyChartPositionDefault
 
+    // set by Plasma for applets in a panel (generic applet settings, not used here)
+    property var cfg_expanding
+    property var cfg_expandingDefault
+    property var cfg_length
+    property var cfg_lengthDefault
+
     Kirigami.FormLayout {
         // Location
 

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "locationsearchmodel.h"
+#include "cumulus_debug.h"
+#include "retry.h"
 #include "useragent.h"
 
 #include <QLocale>
@@ -25,7 +27,12 @@ LocationSearchModel::LocationSearchModel(QObject *parent)
 {
     m_debounce.setSingleShot(true);
     m_debounce.setInterval(400ms);
-    connect(&m_debounce, &QTimer::timeout, this, &LocationSearchModel::search);
+    connect(&m_debounce, &QTimer::timeout, this, [this] {
+        m_failedAttempts = 0;
+        search();
+    });
+    m_retryTimer.setSingleShot(true);
+    connect(&m_retryTimer, &QTimer::timeout, this, &LocationSearchModel::search);
     connect(m_network, &QNetworkAccessManager::finished, this, &LocationSearchModel::onReplyFinished);
 }
 
@@ -75,6 +82,7 @@ void LocationSearchModel::setQuery(const QString &query)
     }
     m_query = query;
     Q_EMIT queryChanged();
+    m_retryTimer.stop();
     m_debounce.start();
 }
 
@@ -102,7 +110,7 @@ void LocationSearchModel::search()
     const QString language = QLocale().name().section(u'_', 0, 0);
     QNetworkRequest request(OpenMeteo::geocodingUrl(query, language));
     request.setHeader(QNetworkRequest::UserAgentHeader, Cumulus::userAgent());
-    request.setTransferTimeout(15s);
+    request.setTransferTimeout(10s);
     m_reply = m_network->get(request);
     m_status = Searching;
     Q_EMIT statusChanged();
@@ -117,6 +125,14 @@ void LocationSearchModel::onReplyFinished(QNetworkReply *reply)
     m_reply = nullptr;
 
     if (reply->error() != QNetworkReply::NoError) {
+        // Only the quick retries: the user is waiting, a slow retry would come too late to help.
+        ++m_failedAttempts;
+        const bool transient = Retry::isTransient(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt());
+        qCWarning(CUMULUS).nospace() << "Location search failed (attempt " << m_failedAttempts << "): " << reply->errorString();
+        if (Retry::isFast(m_failedAttempts, transient)) {
+            m_retryTimer.start(Retry::delay(m_failedAttempts, transient));
+            return; // status stays Searching
+        }
         setResults({}, Error, reply->errorString());
         return;
     }

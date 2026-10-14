@@ -69,4 +69,6 @@ private:
     QNetworkAccessManager *m_network;
     QPointer<QNetworkReply> m_reply;
     QTimer m_debounce;
+    QTimer m_retryTimer;
+    int m_failedAttempts = 0;
 };

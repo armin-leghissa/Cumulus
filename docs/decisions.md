@@ -139,6 +139,14 @@ verified when implementing it.
   values change at most with model runs (every few hours), so more frequent
   requests add nothing. Also refresh on network reconnect and on resume, if
   the data is older than the interval.
+- **Retries:** Open-Meteo sometimes does not answer a connection attempt at
+  all, while the next one succeeds (measured 2026-10-14: about one in five
+  connections, on both API hosts, other servers unaffected). Transient
+  failures (no HTTP response, 5xx) are retried after 2 s, 10 s and 30 s,
+  then every 5 minutes; other HTTP errors (e.g. 429) only every 5 minutes.
+  The failure is shown only after the quick retries. Request timeout 15 s
+  (answers normally take well under a second). Logic in `src/retry.h`,
+  failures are logged in the category `io.github.leghissa.cumulus`.
 - **Cache:** store the last successful raw response per location in
   `QStandardPaths::CacheLocation`. On startup or when offline, show the
   cached data with its age, so the applet is never empty after login.

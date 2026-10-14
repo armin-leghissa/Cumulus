@@ -98,6 +98,7 @@ private:
     void reload();
     void refreshIfStale();
     void onReplyFinished(QNetworkReply *reply);
+    void handleFailure(const QString &message, bool transient);
     bool applyResponse(const QByteArray &json, const QDateTime &fetched, QString *errorString);
     void rebuildRows();
     void scheduleHourTick();
@@ -115,6 +116,8 @@ private:
     QPointer<QNetworkReply> m_reply;
     QTimer m_reloadTimer; // coalesces input changes
     QTimer m_refreshTimer;
+    QTimer m_retryTimer; // after failures, see retry.h
+    int m_failedAttempts = 0;
     QTimer m_hourTimer; // drops past hours and re-evaluates "today" at every full hour
 
     std::optional<Forecast> m_forecast;

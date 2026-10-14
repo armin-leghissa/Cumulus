@@ -29,7 +29,7 @@ ctest --test-dir ../Cumulus_build --output-on-failure
 ctest --test-dir ../Cumulus_build -R weathercodetest   # single test; or run ../Cumulus_build/bin/weathercodetest <testfunction>
 ```
 
-plasmoidviewer resets its applet configuration on every start and on every form factor switch, so it then shows the "not configured" state (Plasma's green placeholder icon with a "Configure…" button). To test with a location, install with `CUMULUS_NO_RESTART=1 cmake --build ../Cumulus_build --target install-user` and run `plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`.
+plasmoidviewer resets its applet configuration on every start and on every form factor switch, so it then shows the "not configured" state (Plasma's green placeholder icon with a "Configure…" button). To test with a location, install with `CUMULUS_NO_RESTART=1 cmake --build ../Cumulus_build --target install-user` and run `plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`. Network failures and retries are logged in the category `io.github.leghissa.cumulus` (warnings by default), e.g. `journalctl --user -u plasma-plasmashell.service | grep leghissa`.
 
 ## Architecture
 

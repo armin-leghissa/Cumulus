@@ -29,6 +29,15 @@ qt_add_qml_module(cumulusplugin
         weatherservice.cpp weatherservice.h
 )
 # QML looks for lib<plugin>.so; KDE's CMake settings drop the prefix for modules
+include(ECMQtDeclareLoggingCategory)
+ecm_qt_declare_logging_category(cumulusplugin
+    HEADER cumulus_debug.h
+    IDENTIFIER CUMULUS
+    CATEGORY_NAME io.github.leghissa.cumulus
+    DEFAULT_SEVERITY Warning
+    DESCRIPTION "Cumulus weather applet"
+)
+
 set_target_properties(cumulusplugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CUMULUS_MODULE_DIR}" PREFIX "lib" INSTALL_RPATH "")
 target_compile_definitions(cumulusplugin PRIVATE CUMULUS_VERSION_STRING="${PROJECT_VERSION}")
 target_link_libraries(cumulusplugin PRIVATE

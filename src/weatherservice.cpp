@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "weatherservice.h"
+#include "cumulus_debug.h"
 #include "openmeteo.h"
+#include "retry.h"
 #include "useragent.h"
 
 #include <QCryptographicHash>
@@ -25,8 +27,7 @@ using namespace std::chrono_literals;
 namespace
 {
 constexpr int MinimumRefreshInterval = 15; // minutes
-constexpr auto RetryInterval = 5min;
-constexpr auto RequestTimeout = 30s;
+constexpr auto RequestTimeout = 15s; // answers normally take well under a second
 }
 
 WeatherService::WeatherService(QObject *parent)
@@ -42,6 +43,9 @@ WeatherService::WeatherService(QObject *parent)
 
     m_refreshTimer.setSingleShot(true);
     connect(&m_refreshTimer, &QTimer::timeout, this, &WeatherService::refreshIfStale);
+
+    m_retryTimer.setSingleShot(true);
+    connect(&m_retryTimer, &QTimer::timeout, this, &WeatherService::refresh);
 
     m_hourTimer.setSingleShot(true);
     m_hourTimer.setTimerType(Qt::VeryCoarseTimer);
@@ -206,6 +210,7 @@ void WeatherService::refresh()
         return;
     }
     abortRequest();
+    m_retryTimer.stop();
     QNetworkRequest request(OpenMeteo::forecastUrl(m_latitude, m_longitude, m_units));
     request.setHeader(QNetworkRequest::UserAgentHeader, Cumulus::userAgent());
     request.setTransferTimeout(RequestTimeout);
@@ -232,6 +237,8 @@ void WeatherService::reload()
 {
     abortRequest();
     m_refreshTimer.stop();
+    m_retryTimer.stop();
+    m_failedAttempts = 0;
     m_forecast.reset();
     m_lastUpdated = {};
     rebuildRows();
@@ -273,18 +280,20 @@ void WeatherService::onReplyFinished(QNetworkReply *reply)
 
     if (reply->error() != QNetworkReply::NoError) {
         // Keep showing the last forecast; try again soon.
-        setStatus(Error, reply->errorString());
-        m_refreshTimer.start(std::min<std::chrono::milliseconds>(RetryInterval, std::chrono::minutes(m_refreshInterval)));
+        handleFailure(reply->errorString(), Retry::isTransient(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()));
         return;
     }
 
     const QByteArray body = reply->readAll();
     QString error;
     if (!applyResponse(body, QDateTime::currentDateTime(), &error)) {
-        setStatus(Error, error);
-        m_refreshTimer.start(RetryInterval);
+        handleFailure(error, false);
         return;
     }
+    if (m_failedAttempts > 0) {
+        qCInfo(CUMULUS) << "Forecast request succeeded after" << m_failedAttempts << "failed attempts";
+    }
+    m_failedAttempts = 0;
 
     QDir().mkpath(QFileInfo(cacheFilePath()).absolutePath());
     QSaveFile cache(cacheFilePath());
@@ -295,6 +304,21 @@ void WeatherService::onReplyFinished(QNetworkReply *reply)
 
     setStatus(Ready);
     refreshIfStale();
+}
+
+void WeatherService::handleFailure(const QString &message, bool transient)
+{
+    ++m_failedAttempts;
+    const auto delay = Retry::delay(m_failedAttempts, transient, std::chrono::minutes(m_refreshInterval));
+    qCWarning(CUMULUS).nospace() << "Forecast request failed (attempt " << m_failedAttempts << "): " << message
+                                 << " - retrying in " << std::chrono::duration_cast<std::chrono::seconds>(delay).count() << " s";
+    // During the quick retries the failure is not shown yet; it is usually gone with the next attempt.
+    if (Retry::isFast(m_failedAttempts, transient)) {
+        setStatus(Loading);
+    } else {
+        setStatus(Error, message);
+    }
+    m_retryTimer.start(delay);
 }
 
 bool WeatherService::applyResponse(const QByteArray &json, const QDateTime &fetched, QString *errorString)
