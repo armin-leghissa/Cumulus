@@ -29,7 +29,7 @@ ctest --test-dir ../Cumulus_build --output-on-failure
 ctest --test-dir ../Cumulus_build -R weathercodetest   # single test; or run ../Cumulus_build/bin/weathercodetest <testfunction>
 ```
 
-plasmoidviewer resets its applet configuration on every start, so it always shows the "not configured" state. To test with a location, use `QT_PLUGIN_PATH=../Cumulus_build/bin plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`.
+plasmoidviewer resets its applet configuration on every start and on every form factor switch, so it then shows the "not configured" state (Plasma's green placeholder icon with a "Configure…" button). To test with a location, use `QT_PLUGIN_PATH=../Cumulus_build/bin plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ plasmoidviewer resets its applet configuration on every start, so it always show
 - C++ is split in two: `cumulus_core` (static library: `openmeteo` request/parsing, `weathercode` day icon rule and icon names, `forecastrows` display rows, `units`) has no Qt Quick or network dependency and is what the unit tests link against. The applet target adds the QML-facing classes: `WeatherService` (network, cache, refresh timers) and the list models in `forecastmodels`.
 - C++ types reach QML through declarative registration (`QML_ELEMENT`, `QML_UNCREATABLE`). Types compiled into the applet target are visible in its QML files without an import. `qml/Format.qml` is a QML singleton for display formatting (`QT_QML_SINGLETON_TYPE` in `src/CMakeLists.txt`).
 - `src/qml/main.qml` is the root item. It must be a `PlasmoidItem`, which defines `fullRepresentation` (and optionally `compactRepresentation`). Files in `QML_SOURCES`/`RESOURCES` end up flat in the applet's QML module (`qrc:/qt/qml/plasma/applet/io/github/leghissa/cumulus/`), so `config/main.xml` is found as `main.xml`. Representations live in their own files and get the `WeatherService` passed in as a required property.
-- `src/config/main.xml` defines the applet settings (`Plasmoid.configuration.*`).
+- `src/config/main.xml` defines the applet settings (`Plasmoid.configuration.*`). `config/config.qml` lists the settings pages; a page binds each entry as `cfg_<name>` and must also declare `cfg_<name>Default`, otherwise Plasma 6 logs "Setting initial properties failed".
 - `src/metadata.json` is the KPackage metadata: the plugin ID comes from the CMake target name, and the file also holds the display name, icon, category, and `X-Plasma-API-Minimum-Version`.
 - Translations use the domain `plasma_applet_io.github.leghissa.cumulus`, set with `TRANSLATION_DOMAIN` in `src/CMakeLists.txt`. Use `i18n*()` in both C++ and QML.
 

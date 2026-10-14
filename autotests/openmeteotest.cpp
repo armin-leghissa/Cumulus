@@ -144,6 +144,9 @@ private Q_SLOTS:
         QCOMPARE(locations[1].region, u"Virginia"_s);
         QCOMPARE(locations[1].longitude, -77.26526);
 
+        QCOMPARE(locations[0].displayName(), u"Wien, Österreich"_s);
+        QCOMPARE(locations[1].displayName(), u"Vienna, Virginia, Vereinigte Staaten"_s);
+
         QVERIFY(OpenMeteo::parseGeocoding(R"({"generationtime_ms": 0.1})").isEmpty()); // no match
     }
 };

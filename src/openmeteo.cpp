@@ -217,6 +217,18 @@ std::optional<Forecast> parseForecast(const QByteArray &json, QString *errorStri
     return forecast;
 }
 
+QString Location::displayName() const
+{
+    QStringList parts{name};
+    if (!region.isEmpty() && region != name) {
+        parts.append(region);
+    }
+    if (!country.isEmpty()) {
+        parts.append(country);
+    }
+    return parts.join(u", "_s);
+}
+
 QList<Location> parseGeocoding(const QByteArray &json, QString *errorString)
 {
     QList<Location> locations;

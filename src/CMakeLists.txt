@@ -22,8 +22,11 @@ plasma_add_applet(io.github.leghissa.cumulus
         qml/CompactRepresentation.qml
         qml/FullRepresentation.qml
         qml/Format.qml
+        config/config.qml
+        config/ConfigGeneral.qml
     CPP_SOURCES
         forecastmodels.cpp
+        locationsearchmodel.cpp
         weatherservice.cpp
     RESOURCES
         config/main.xml

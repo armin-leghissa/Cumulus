@@ -32,6 +32,9 @@ struct Location {
     QString country;
     double latitude = 0;
     double longitude = 0;
+
+    // "Name, Region, Country", skipping empty parts and a region equal to the name
+    QString displayName() const;
 };
 
 QList<Location> parseGeocoding(const QByteArray &json, QString *errorString = nullptr);

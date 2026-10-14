@@ -3,6 +3,7 @@
 
 #include "weatherservice.h"
 #include "openmeteo.h"
+#include "useragent.h"
 
 #include <QCryptographicHash>
 #include <QDir>
@@ -26,8 +27,6 @@ namespace
 constexpr int MinimumRefreshInterval = 15; // minutes
 constexpr auto RetryInterval = 5min;
 constexpr auto RequestTimeout = 30s;
-
-const QByteArray UserAgent = "Cumulus/" CUMULUS_VERSION_STRING " (https://github.com/armin-leghissa/Cumulus)";
 }
 
 WeatherService::WeatherService(QObject *parent)
@@ -178,12 +177,12 @@ QString WeatherService::todayIconName() const
 
 QVariant WeatherService::todayTemperatureMin() const
 {
-    return m_dailyModel->data(m_dailyModel->index(0), DailyForecastModel::TemperatureMinRole);
+    return hasForecast() ? m_dailyModel->data(m_dailyModel->index(0), DailyForecastModel::TemperatureMinRole) : QVariant();
 }
 
 QVariant WeatherService::todayTemperatureMax() const
 {
-    return m_dailyModel->data(m_dailyModel->index(0), DailyForecastModel::TemperatureMaxRole);
+    return hasForecast() ? m_dailyModel->data(m_dailyModel->index(0), DailyForecastModel::TemperatureMaxRole) : QVariant();
 }
 
 QString WeatherService::temperatureSymbol() const
@@ -208,7 +207,7 @@ void WeatherService::refresh()
     }
     abortRequest();
     QNetworkRequest request(OpenMeteo::forecastUrl(m_latitude, m_longitude, m_units));
-    request.setHeader(QNetworkRequest::UserAgentHeader, UserAgent);
+    request.setHeader(QNetworkRequest::UserAgentHeader, Cumulus::userAgent());
     request.setTransferTimeout(RequestTimeout);
     m_reply = m_network->get(request);
     setStatus(Loading);
