@@ -36,9 +36,18 @@ The repository has no tests or lint setup.
 
 The plugin ID is `io.github.leghissa.cumulus` (third-party reverse-domain naming; `org.kde.plasma.*` is reserved for Plasma itself). Renaming it means changing the CMake target, `TRANSLATION_DOMAIN`, and the `.pot` name in `Messages.sh` together. `Messages.sh` is the xgettext extraction script for KDE's i18n infrastructure.
 
+## Design
+
+Details and reasoning live in `docs/decisions.md` (technical) and `docs/ui-guidelines.md` (UI). Read them before implementing a feature. Short version:
+- Data comes from Open-Meteo (forecast and geocoding, no API key, CC BY 4.0 attribution required). One request per refresh fetches daily and hourly data with `models=best_match,gfs_seamless`. GFS fills in precipitation probability where `best_match` has none (days 12–14). The last response is cached.
+- C++ provides the API client, the data models and a `WeatherService` QML type. Charts use KQuickCharts in a reusable QML component for both the daily and the hourly chart.
+- Panel: today's weather icon, optionally with a max or min/max temperature overlay. Popup: the 14-day chart and an hourly chart, which is always visible below or above it (setting). The two are synced by the selected day, today by default.
+- The day icon is computed in C++ from the hourly codes between sunrise and sunset, not taken from the API's daily code (which shows the worst condition of the day). A setting selects optimistic, average (median) or pessimistic.
+- Icons come only from the system icon theme. Units follow the system measurement setting (`QLocale::system().measurementSystem()`), with no unit setting.
+
 ## Conventions
 
-**Language:** Code, identifiers, comments, commit messages and repository documentation (README, CLAUDE.md, docs/) are in English. Talk to the user in German.
+**Language:** Code, identifiers, comments, commit messages and repository documentation (README, CLAUDE.md, docs/) are in English. Talk to the user in German. Never use gendering, only correct and precise grammar.
 
 **QML for UI, C++ for logic:**
 - QML holds the UI structure: layout, visuals, Plasma/Kirigami components, bindings, animations, and purely presentational state (e.g. which view is expanded).
