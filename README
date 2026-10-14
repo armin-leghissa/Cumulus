@@ -91,8 +91,28 @@ Launch configuration in KDevelop:
 
 -- Translations --
 
-Messages.sh extracts translatable strings (translation domain
-plasma_applet_io.github.leghissa.cumulus) for KDE's i18n tooling.
+Available: German, Spanish, French, Italian, Dutch, Russian
+(po/<lang>/plasma_applet_io.github.leghissa.cumulus.po). The build compiles
+them into the package (contents/locale/), so they work for user and system
+installs alike.
+
+After changing user-visible strings, update the translation files:
+
+tools/update-translations.sh          # update all languages
+tools/update-translations.sh pt_BR    # also add a new language
+
+New or changed strings are then untranslated or marked "fuzzy" in the .po
+files. Translations are only used when Plasma loads the applet by its ID,
+i.e. when it is installed; plasmoidviewer started from the build directory
+(by path) always shows English. To check a language:
+
+CUMULUS_NO_RESTART=1 cmake --build ../Cumulus_build --target install-user
+LANGUAGE=de plasmawindowed io.github.leghissa.cumulus
+
+The name and description shown in "Add Widgets…" are translated in
+package/metadata.json (Description[<lang>]).
+
+Messages.sh is the extraction script for KDE's translation infrastructure.
 
 
 -- License --

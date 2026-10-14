@@ -1,0 +1,236 @@
+# Spanish translations for cumulus package.
+# Copyright (C) 2026 THE cumulus'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the cumulus package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cumulus\n"
+"Report-Msgid-Bugs-To: leghissa@zoho.eu\n"
+"POT-Creation-Date: 2026-10-14 18:51+0200\n"
+"PO-Revision-Date: 2026-10-14 18:51+0200\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: package/contents/config/config.qml:9
+#, kde-format
+msgctxt "@title:group for configuration dialog page"
+msgid "General"
+msgstr "General"
+
+#: package/contents/ui/ConfigGeneral.qml:44
+#, kde-format
+msgctxt "@label"
+msgid "Location:"
+msgstr "Ubicación:"
+
+#: package/contents/ui/ConfigGeneral.qml:47
+#, kde-format
+msgctxt "@info no location chosen yet"
+msgid "None"
+msgstr "Ninguna"
+
+#: package/contents/ui/ConfigGeneral.qml:53
+#, kde-format
+msgctxt "@label"
+msgid "Search:"
+msgstr "Buscar:"
+
+#: package/contents/ui/ConfigGeneral.qml:55
+#, kde-format
+msgctxt "@info:placeholder"
+msgid "City or place name…"
+msgstr "Ciudad o lugar…"
+
+#: package/contents/ui/ConfigGeneral.qml:96
+#, kde-format
+msgctxt "@info"
+msgid "Searching…"
+msgstr "Buscando…"
+
+#: package/contents/ui/ConfigGeneral.qml:97
+#, kde-format
+msgctxt "@info"
+msgid "No places found"
+msgstr "No se encontraron lugares"
+
+#: package/contents/ui/ConfigGeneral.qml:98
+#, kde-format
+msgctxt "@info"
+msgid "Search failed"
+msgstr "La búsqueda ha fallado"
+
+#: package/contents/ui/ConfigGeneral.qml:112
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Temperature on icon:"
+msgstr "Temperatura en el icono:"
+
+#: package/contents/ui/ConfigGeneral.qml:114
+#, kde-format
+msgctxt "@item:inlistbox temperature on panel icon"
+msgid "None"
+msgstr "Ninguna"
+
+#: package/contents/ui/ConfigGeneral.qml:115
+#, kde-format
+msgctxt "@item:inlistbox temperature on panel icon"
+msgid "Maximum"
+msgstr "Máxima"
+
+#: package/contents/ui/ConfigGeneral.qml:116
+#, kde-format
+msgctxt "@item:inlistbox temperature on panel icon"
+msgid "Minimum and maximum"
+msgstr "Mínima y máxima"
+
+#: package/contents/ui/ConfigGeneral.qml:124
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Day icon:"
+msgstr "Icono del día:"
+
+#: package/contents/ui/ConfigGeneral.qml:126
+#, kde-format
+msgctxt "@item:inlistbox how a day is condensed into one icon"
+msgid "Optimistic"
+msgstr "Optimista"
+
+#: package/contents/ui/ConfigGeneral.qml:127
+#, kde-format
+msgctxt "@item:inlistbox how a day is condensed into one icon"
+msgid "Average"
+msgstr "Promedio"
+
+#: package/contents/ui/ConfigGeneral.qml:128
+#, kde-format
+msgctxt "@item:inlistbox how a day is condensed into one icon"
+msgid "Pessimistic"
+msgstr "Pesimista"
+
+#: package/contents/ui/ConfigGeneral.qml:140
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Shows rain only if it rains for at least half of the daylight hours, "
+"otherwise the better part of the day."
+msgstr "Muestra lluvia solo si llueve durante al menos la mitad de las horas de luz; si no, la mejor parte del día."
+
+#: package/contents/ui/ConfigGeneral.qml:141
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Shows rain if it rains for at least a quarter of the daylight hours, "
+"otherwise the typical weather of the day."
+msgstr "Muestra lluvia si llueve durante al menos una cuarta parte de las horas de luz; si no, el tiempo típico del día."
+
+#: package/contents/ui/ConfigGeneral.qml:142
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Shows rain as soon as it rains during daylight, otherwise the worse part of "
+"the day."
+msgstr "Muestra lluvia en cuanto llueve durante las horas de luz; si no, la peor parte del día."
+
+#: package/contents/ui/ConfigGeneral.qml:153
+#, kde-format
+msgctxt "@label:spinbox"
+msgid "Initially visible columns:"
+msgstr "Columnas visibles al abrir:"
+
+#: package/contents/ui/ConfigGeneral.qml:161
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Hourly chart:"
+msgstr "Gráfico por horas:"
+
+#: package/contents/ui/ConfigGeneral.qml:163
+#, kde-format
+msgctxt "@item:inlistbox position of the hourly chart"
+msgid "Below the 14-day chart"
+msgstr "Debajo del pronóstico de 14 días"
+
+#: package/contents/ui/ConfigGeneral.qml:164
+#, kde-format
+msgctxt "@item:inlistbox position of the hourly chart"
+msgid "Above the 14-day chart"
+msgstr "Encima del pronóstico de 14 días"
+
+#: package/contents/ui/ConfigGeneral.qml:177
+#, kde-format
+msgctxt "@label:spinbox"
+msgid "Update every:"
+msgstr "Actualizar cada:"
+
+#: package/contents/ui/ConfigGeneral.qml:182
+#, kde-format
+msgctxt "@item:valuesuffix"
+msgid "%1 minute"
+msgid_plural "%1 minutes"
+msgstr[0] "%1 minuto"
+msgstr[1] "%1 minutos"
+
+#: package/contents/ui/Format.qml:54
+#, kde-format
+msgctxt "@label percentage"
+msgid "%1 %"
+msgstr "%1 %"
+
+#: package/contents/ui/FullRepresentation.qml:72
+#, kde-format
+msgctxt "@info:status"
+msgid "Update failed, data from %1"
+msgstr "Error al actualizar, datos de las %1"
+
+#: package/contents/ui/FullRepresentation.qml:73
+#, kde-format
+msgctxt "@info:status"
+msgid "Updated %1"
+msgstr "Actualizado a las %1"
+
+#: package/contents/ui/FullRepresentation.qml:82
+#, kde-format
+msgctxt "@info"
+msgid "Loading forecast…"
+msgstr "Cargando el pronóstico…"
+
+#: package/contents/ui/FullRepresentation.qml:83
+#, kde-format
+msgctxt "@info"
+msgid "Forecast not available"
+msgstr "Pronóstico no disponible"
+
+#: package/contents/ui/FullRepresentation.qml:84
+#, kde-format
+msgctxt "@info"
+msgid "No forecast"
+msgstr "Sin pronóstico"
+
+#: package/contents/ui/FullRepresentation.qml:100
+#, kde-format
+msgctxt "@title"
+msgid "14-day forecast"
+msgstr "Pronóstico de 14 días"
+
+#: package/contents/ui/FullRepresentation.qml:128
+#, kde-format
+msgctxt "@title"
+msgid "Hourly forecast"
+msgstr "Pronóstico por horas"
+
+#: package/contents/ui/FullRepresentation.qml:163
+#, kde-format
+msgctxt "@info attribution, %1 is a link"
+msgid "Weather data by %1"
+msgstr "Datos meteorológicos de %1"
+
+#: package/contents/ui/main.qml:30
+#, kde-format
+msgctxt "@info:tooltip today's minimum and maximum temperature"
+msgid "Today: %1 – %2"
+msgstr "Hoy: %1 – %2"

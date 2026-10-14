@@ -1,0 +1,236 @@
+# Dutch translations for cumulus package.
+# Copyright (C) 2026 THE cumulus'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the cumulus package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cumulus\n"
+"Report-Msgid-Bugs-To: leghissa@zoho.eu\n"
+"POT-Creation-Date: 2026-10-14 18:51+0200\n"
+"PO-Revision-Date: 2026-10-14 18:51+0200\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: package/contents/config/config.qml:9
+#, kde-format
+msgctxt "@title:group for configuration dialog page"
+msgid "General"
+msgstr "Algemeen"
+
+#: package/contents/ui/ConfigGeneral.qml:44
+#, kde-format
+msgctxt "@label"
+msgid "Location:"
+msgstr "Locatie:"
+
+#: package/contents/ui/ConfigGeneral.qml:47
+#, kde-format
+msgctxt "@info no location chosen yet"
+msgid "None"
+msgstr "Geen"
+
+#: package/contents/ui/ConfigGeneral.qml:53
+#, kde-format
+msgctxt "@label"
+msgid "Search:"
+msgstr "Zoeken:"
+
+#: package/contents/ui/ConfigGeneral.qml:55
+#, kde-format
+msgctxt "@info:placeholder"
+msgid "City or place name…"
+msgstr "Stad of plaatsnaam…"
+
+#: package/contents/ui/ConfigGeneral.qml:96
+#, kde-format
+msgctxt "@info"
+msgid "Searching…"
+msgstr "Bezig met zoeken…"
+
+#: package/contents/ui/ConfigGeneral.qml:97
+#, kde-format
+msgctxt "@info"
+msgid "No places found"
+msgstr "Geen plaatsen gevonden"
+
+#: package/contents/ui/ConfigGeneral.qml:98
+#, kde-format
+msgctxt "@info"
+msgid "Search failed"
+msgstr "Zoeken mislukt"
+
+#: package/contents/ui/ConfigGeneral.qml:112
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Temperature on icon:"
+msgstr "Temperatuur op pictogram:"
+
+#: package/contents/ui/ConfigGeneral.qml:114
+#, kde-format
+msgctxt "@item:inlistbox temperature on panel icon"
+msgid "None"
+msgstr "Geen"
+
+#: package/contents/ui/ConfigGeneral.qml:115
+#, kde-format
+msgctxt "@item:inlistbox temperature on panel icon"
+msgid "Maximum"
+msgstr "Maximum"
+
+#: package/contents/ui/ConfigGeneral.qml:116
+#, kde-format
+msgctxt "@item:inlistbox temperature on panel icon"
+msgid "Minimum and maximum"
+msgstr "Minimum en maximum"
+
+#: package/contents/ui/ConfigGeneral.qml:124
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Day icon:"
+msgstr "Dagpictogram:"
+
+#: package/contents/ui/ConfigGeneral.qml:126
+#, kde-format
+msgctxt "@item:inlistbox how a day is condensed into one icon"
+msgid "Optimistic"
+msgstr "Optimistisch"
+
+#: package/contents/ui/ConfigGeneral.qml:127
+#, kde-format
+msgctxt "@item:inlistbox how a day is condensed into one icon"
+msgid "Average"
+msgstr "Gemiddeld"
+
+#: package/contents/ui/ConfigGeneral.qml:128
+#, kde-format
+msgctxt "@item:inlistbox how a day is condensed into one icon"
+msgid "Pessimistic"
+msgstr "Pessimistisch"
+
+#: package/contents/ui/ConfigGeneral.qml:140
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Shows rain only if it rains for at least half of the daylight hours, "
+"otherwise the better part of the day."
+msgstr "Toont regen alleen als het minstens de helft van de daglichturen regent, anders het betere deel van de dag."
+
+#: package/contents/ui/ConfigGeneral.qml:141
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Shows rain if it rains for at least a quarter of the daylight hours, "
+"otherwise the typical weather of the day."
+msgstr "Toont regen als het minstens een kwart van de daglichturen regent, anders het typische weer van de dag."
+
+#: package/contents/ui/ConfigGeneral.qml:142
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Shows rain as soon as it rains during daylight, otherwise the worse part of "
+"the day."
+msgstr "Toont regen zodra het overdag regent, anders het slechtere deel van de dag."
+
+#: package/contents/ui/ConfigGeneral.qml:153
+#, kde-format
+msgctxt "@label:spinbox"
+msgid "Initially visible columns:"
+msgstr "Zichtbare kolommen bij openen:"
+
+#: package/contents/ui/ConfigGeneral.qml:161
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Hourly chart:"
+msgstr "Uurgrafiek:"
+
+#: package/contents/ui/ConfigGeneral.qml:163
+#, kde-format
+msgctxt "@item:inlistbox position of the hourly chart"
+msgid "Below the 14-day chart"
+msgstr "Onder de 14-daagse verwachting"
+
+#: package/contents/ui/ConfigGeneral.qml:164
+#, kde-format
+msgctxt "@item:inlistbox position of the hourly chart"
+msgid "Above the 14-day chart"
+msgstr "Boven de 14-daagse verwachting"
+
+#: package/contents/ui/ConfigGeneral.qml:177
+#, kde-format
+msgctxt "@label:spinbox"
+msgid "Update every:"
+msgstr "Bijwerken elke:"
+
+#: package/contents/ui/ConfigGeneral.qml:182
+#, kde-format
+msgctxt "@item:valuesuffix"
+msgid "%1 minute"
+msgid_plural "%1 minutes"
+msgstr[0] "%1 minuut"
+msgstr[1] "%1 minuten"
+
+#: package/contents/ui/Format.qml:54
+#, kde-format
+msgctxt "@label percentage"
+msgid "%1 %"
+msgstr "%1%"
+
+#: package/contents/ui/FullRepresentation.qml:72
+#, kde-format
+msgctxt "@info:status"
+msgid "Update failed, data from %1"
+msgstr "Bijwerken mislukt, gegevens van %1"
+
+#: package/contents/ui/FullRepresentation.qml:73
+#, kde-format
+msgctxt "@info:status"
+msgid "Updated %1"
+msgstr "Bijgewerkt om %1"
+
+#: package/contents/ui/FullRepresentation.qml:82
+#, kde-format
+msgctxt "@info"
+msgid "Loading forecast…"
+msgstr "Verwachting laden…"
+
+#: package/contents/ui/FullRepresentation.qml:83
+#, kde-format
+msgctxt "@info"
+msgid "Forecast not available"
+msgstr "Verwachting niet beschikbaar"
+
+#: package/contents/ui/FullRepresentation.qml:84
+#, kde-format
+msgctxt "@info"
+msgid "No forecast"
+msgstr "Geen verwachting"
+
+#: package/contents/ui/FullRepresentation.qml:100
+#, kde-format
+msgctxt "@title"
+msgid "14-day forecast"
+msgstr "14-daagse verwachting"
+
+#: package/contents/ui/FullRepresentation.qml:128
+#, kde-format
+msgctxt "@title"
+msgid "Hourly forecast"
+msgstr "Verwachting per uur"
+
+#: package/contents/ui/FullRepresentation.qml:163
+#, kde-format
+msgctxt "@info attribution, %1 is a link"
+msgid "Weather data by %1"
+msgstr "Weergegevens van %1"
+
+#: package/contents/ui/main.qml:30
+#, kde-format
+msgctxt "@info:tooltip today's minimum and maximum temperature"
+msgid "Today: %1 – %2"
+msgstr "Vandaag: %1 – %2"

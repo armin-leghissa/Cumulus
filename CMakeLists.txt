@@ -70,6 +70,29 @@ install(DIRECTORY package/ DESTINATION "${CUMULUS_PACKAGE_INSTALL_DIR}")
 
 add_subdirectory(src)
 
+# Translations: po/<lang>/<domain>.po, compiled into the package (contents/locale), where Plasma looks
+# for them when it loads the applet by its ID. Update them with tools/update-translations.sh.
+find_package(Gettext REQUIRED)
+set(CUMULUS_TRANSLATION_DOMAIN "plasma_applet_${CUMULUS_PLUGIN_ID}")
+file(GLOB _cumulus_po_files CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/po/*/${CUMULUS_TRANSLATION_DOMAIN}.po")
+set(_cumulus_mo_files)
+foreach(_po ${_cumulus_po_files})
+    get_filename_component(_lang_dir "${_po}" DIRECTORY)
+    get_filename_component(_lang "${_lang_dir}" NAME)
+    set(_mo_dir "${CUMULUS_PACKAGE_BUILD_DIR}/contents/locale/${_lang}/LC_MESSAGES")
+    set(_mo "${_mo_dir}/${CUMULUS_TRANSLATION_DOMAIN}.mo")
+    add_custom_command(OUTPUT "${_mo}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_mo_dir}"
+        COMMAND ${GETTEXT_MSGFMT_EXECUTABLE} --check -o "${_mo}" "${_po}"
+        DEPENDS "${_po}"
+        COMMENT "Compiling ${_lang} translation"
+        VERBATIM
+    )
+    install(FILES "${_mo}" DESTINATION "${CUMULUS_PACKAGE_INSTALL_DIR}/contents/locale/${_lang}/LC_MESSAGES")
+    list(APPEND _cumulus_mo_files "${_mo}")
+endforeach()
+add_custom_target(cumulus_translations ALL DEPENDS ${_cumulus_mo_files})
+
 if(BUILD_TESTING)
     find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Test)
     add_subdirectory(autotests)
@@ -124,7 +147,7 @@ add_dependencies(uninstall uninstall-${_cumulus_mode})
 
 # Installing builds first, like the plain install target does.
 foreach(_target install-user install-system)
-    add_dependencies(${_target} cumulus_package cumulusplugin)
+    add_dependencies(${_target} cumulus_package cumulusplugin cumulus_translations)
 endforeach()
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

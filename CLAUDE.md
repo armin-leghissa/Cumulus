@@ -38,7 +38,7 @@ plasmoidviewer resets its applet configuration on every start and on every form 
 - C++ types reach QML through declarative registration (`QML_ELEMENT`, `QML_UNCREATABLE`). Every QML file that uses them has `import "../lib/io/github/leghissa/cumulus"`.
 - `contents/ui/main.qml` is the root item. It must be a `PlasmoidItem`, which defines `fullRepresentation` and `compactRepresentation`. Representations live in their own files and get the `WeatherService` passed in as a required property.
 - `contents/config/main.xml` defines the applet settings (`Plasmoid.configuration.*`). `contents/config/config.qml` lists the settings pages (in `contents/ui/`); a page binds each entry as `cfg_<name>` and must also declare `cfg_<name>Default`, otherwise Plasma 6 logs "Setting initial properties failed".
-- Translations use the domain `plasma_applet_io.github.leghissa.cumulus` (derived from the plugin ID for packages). Use `i18n*()` in QML.
+- Translations use the domain `plasma_applet_io.github.leghissa.cumulus` (derived from the plugin ID for packages). Use `i18n*()`/`i18nc*()` with a context in QML. Sources are `po/<lang>/<domain>.po` (de, es, fr, it, nl, ru); the build compiles them into the package's `contents/locale/`. After changing user-visible strings run `tools/update-translations.sh` and translate the new or fuzzy entries in all languages, and keep `Description[<lang>]` in `package/metadata.json` in sync. Plasma registers the package translations only when it loads the applet by ID, so test them with an installed applet (`LANGUAGE=de plasmawindowed io.github.leghissa.cumulus`), not with `plasmoidviewer -a <path>`.
 
 ## Plugin ID
 
