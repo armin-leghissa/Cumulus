@@ -1,6 +1,7 @@
 {
     "KPackageStructure": "Plasma/Applet",
     "KPlugin": {
+        "Id": "io.github.leghissa.cumulus",
         "Authors": [
             {
                 "Email": "leghissa@zoho.eu",

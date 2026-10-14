@@ -256,6 +256,42 @@ The thresholds are a starting point and are fixed by unit tests, so they can
 be tuned later. The hourly chart shows each hour's own code, without any
 aggregation.
 
+## D9 – Packaging: Plasma package with a C++ QML module inside
+
+The applet started as a compiled applet (`plasma_add_applet`, one `.so`
+with embedded QML). Plasma loads compiled applets only from Qt plugin paths,
+and there is no per-user plugin directory, so a non-root install needed
+`QT_PLUGIN_PATH` set for the Plasma session through a login script.
+
+**Decision (2026-10-14):** Ship a regular Plasma package (`package/`:
+`metadata.json`, `contents/ui`, `contents/config`) with the C++ QML module
+built into `contents/lib/io/github/leghissa/cumulus/`. The QML files import
+it by relative path (`import "../lib/io/github/leghissa/cumulus"`).
+
+Why:
+- Qt loads the C++ plugins listed in the `qmldir` of an imported local
+  directory (documented for directory imports). Verified: a test package
+  installed with `kpackagetool6` into `~/.local/share/plasma/plasmoids/`
+  and loaded by ID used its package-local C++ plugin without any
+  environment variable.
+- The same package works in `~/.local/share/plasma/plasmoids/` and
+  `/usr/share/plasma/plasmoids/`, so user and system installs differ only
+  in the prefix (targets `install-user`, `install-system`).
+- No login script, no `QT_PLUGIN_PATH`, no re-login after the first
+  install. A plasmashell restart is enough, and the install targets do it.
+- The C++/QML split (CLAUDE.md conventions) is kept.
+
+Trade-offs:
+- KDE documents C++ widgets as a QML package plus a private QML plugin in
+  the system QML import path. A plugin inside the package is not described
+  there (neither recommended nor ruled out); it relies on the Qt mechanism
+  above.
+- QML files are no longer compiled into the plugin, so QML errors show up at
+  runtime instead of build time.
+- Widgets with compiled code cannot be distributed through the KDE Store
+  (KDE documentation); distribution would be via distro packages (e.g. AUR).
+- A user install of the same ID takes precedence over a system install.
+
 ## Sources
 
 - Open-Meteo Forecast API: https://open-meteo.com/en/docs
@@ -264,4 +300,6 @@ aggregation.
 - MET Norway Locationforecast: https://api.met.no/weatherapi/locationforecast/2.0/documentation
 - Provider comparison (free tiers): https://apibouncer.com/guides/best-free-weather-apis
 - KQuickCharts: https://api.kde.org/kquickcharts-index.html
+- Qt directory imports: https://doc.qt.io/qt-6/qtqml-syntax-directoryimports.html
+- KDE widget C++ API: https://develop.kde.org/docs/plasma/widget/c-api/
 - Plasma weather library: kdeplasma-addons 6.7.4, `/usr/include/plasma/weather/`

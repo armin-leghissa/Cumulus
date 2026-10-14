@@ -13,14 +13,14 @@ Stack: Qt ≥ 6.7 (Quick, Core, Gui), KF6 (I18n, Config), Plasma 6, ECM/CMake �
 The KDevelop project builds out of source into `../Cumulus_build` (Debug):
 
 ```bash
-cmake -S . -B ../Cumulus_build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON   # add -DCMAKE_INSTALL_PREFIX=<prefix> to install elsewhere
+cmake -S . -B ../Cumulus_build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
 cmake --build ../Cumulus_build
-tools/run-plasmoidviewer.sh   # run from the build dir without installing (CUMULUS_BUILD_DIR overrides the build dir)
+tools/run-plasmoidviewer.sh   # plasmoidviewer -a ../Cumulus_build/package (CUMULUS_BUILD_DIR overrides the build dir)
 ```
 
-This is a compiled C++ applet: QML and assets are embedded in the plugin `.so` (`bin/plasma/applets/`). Load it **by plugin ID** with `QT_PLUGIN_PATH` pointing at the build's `bin/`, which is what the script does, never by path. `plasmoidviewer -a src/` treats the directory as a pure-QML KPackage, finds no `contents/ui/main.qml` and fails with "File name empty! … Invalid empty URL". The KDevelop launch config (`.kdev4/Cumulus.kdev4`, not versioned) is a native launcher that runs this script after building the target. KDevelop rejects shell metacharacters, including `=`, in launcher arguments, so environment variables can't be set there inline.
+The applet is a Plasma package, assembled by the build in `../Cumulus_build/package` (docs/decisions.md D9): `package/` from the source tree is copied there (target `cumulus_package`), and the C++ QML module is built into `contents/lib/io/github/leghissa/cumulus/`. The QML files import it by relative path, so neither `QT_PLUGIN_PATH` nor `QML_IMPORT_PATH` is needed. The KDevelop launch config (`.kdev4/Cumulus.kdev4`, not versioned) is a native launcher that runs the script after building the project (KDevelop rejects shell metacharacters such as `=` in launcher arguments).
 
-To use it in the real shell, `cmake --install ../Cumulus_build` (prefix `/usr`, needs root), then `kquitapp6 plasmashell && plasmashell`. A stale build dir can still contain outputs under an old plugin ID in `bin/plasma/`.
+Install targets (top-level `CMakeLists.txt`): `install-user` (`~/.local`), `install-system` (`/usr` via `pkexec`), `uninstall-user`, `uninstall-system`; plain `install`/`uninstall` follow the cache variable `CUMULUS_INSTALL_MODE` (USER by default). Everything installs into `<prefix>/share/plasma/plasmoids/io.github.leghissa.cumulus/`, and all targets restart plasmashell via `tools/restart-plasmashell.sh` afterwards. **When installing yourself to test, set `CUMULUS_NO_RESTART=1`** so the user's running shell is not restarted.
 
 Tests (QtTest via `ecm_add_tests`, in `autotests/`, no network; `autotests/data/` holds a recorded API response):
 
@@ -29,21 +29,20 @@ ctest --test-dir ../Cumulus_build --output-on-failure
 ctest --test-dir ../Cumulus_build -R weathercodetest   # single test; or run ../Cumulus_build/bin/weathercodetest <testfunction>
 ```
 
-plasmoidviewer resets its applet configuration on every start and on every form factor switch, so it then shows the "not configured" state (Plasma's green placeholder icon with a "Configure…" button). To test with a location, use `QT_PLUGIN_PATH=../Cumulus_build/bin plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`.
+plasmoidviewer resets its applet configuration on every start and on every form factor switch, so it then shows the "not configured" state (Plasma's green placeholder icon with a "Configure…" button). To test with a location, install with `CUMULUS_NO_RESTART=1 cmake --build ../Cumulus_build --target install-user` and run `plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`.
 
 ## Architecture
 
-- `plasma_add_applet(io.github.leghissa.cumulus ... GENERATE_APPLET_CLASS)` in `src/CMakeLists.txt` builds a single plugin that bundles the QML (`QML_SOURCES`), the C++ (`CPP_SOURCES`), and resources such as images into a Qt resource. Any new `.qml`, `.cpp`, or asset file must be added to the matching list there. `GENERATE_APPLET_CLASS` means there is no hand-written `Plasma::Applet` subclass.
-- C++ is split in two: `cumulus_core` (static library: `openmeteo` request/parsing, `weathercode` day icon rule and icon names, `forecastrows` display rows, `units`) has no Qt Quick or network dependency and is what the unit tests link against. The applet target adds the QML-facing classes: `WeatherService` (network, cache, refresh timers) and the list models in `forecastmodels`.
-- C++ types reach QML through declarative registration (`QML_ELEMENT`, `QML_UNCREATABLE`). Types compiled into the applet target are visible in its QML files without an import. `qml/Format.qml` is a QML singleton for display formatting (`QT_QML_SINGLETON_TYPE` in `src/CMakeLists.txt`).
-- `src/qml/main.qml` is the root item. It must be a `PlasmoidItem`, which defines `fullRepresentation` (and optionally `compactRepresentation`). Files in `QML_SOURCES`/`RESOURCES` end up flat in the applet's QML module (`qrc:/qt/qml/plasma/applet/io/github/leghissa/cumulus/`), so `config/main.xml` is found as `main.xml`. Representations live in their own files and get the `WeatherService` passed in as a required property.
-- `src/config/main.xml` defines the applet settings (`Plasmoid.configuration.*`). `config/config.qml` lists the settings pages; a page binds each entry as `cfg_<name>` and must also declare `cfg_<name>Default`, otherwise Plasma 6 logs "Setting initial properties failed".
-- `src/metadata.json` is the KPackage metadata: the plugin ID comes from the CMake target name, and the file also holds the display name, icon, category, and `X-Plasma-API-Minimum-Version`.
-- Translations use the domain `plasma_applet_io.github.leghissa.cumulus`, set with `TRANSLATION_DOMAIN` in `src/CMakeLists.txt`. Use `i18n*()` in both C++ and QML.
+- `package/` is the applet package: `metadata.json` (with `KPlugin.Id`), `contents/ui/*.qml`, `contents/config/main.xml` and `config.qml`. QML files are plain files, not compiled into a resource; new ones need no CMake change, but QML components used by name must be listed in `contents/ui/qmldir` (it also declares the `Format` singleton).
+- C++ is split in two: `cumulus_core` (static library: `openmeteo` request/parsing, `weathercode` day icon rule and icon names, `forecastrows` display rows, `units`) has no Qt Quick or network dependency and is what the unit tests link against. The QML module `cumulusplugin` (URI `io.github.leghissa.cumulus`, `src/CMakeLists.txt`) adds the QML-facing classes: `WeatherService` (network, cache, refresh timers), the list models in `forecastmodels` and `LocationSearchModel`. Its library must be named `libcumulusplugin.so` (`PREFIX "lib"`), or QML reports "plugin not found".
+- C++ types reach QML through declarative registration (`QML_ELEMENT`, `QML_UNCREATABLE`). Every QML file that uses them has `import "../lib/io/github/leghissa/cumulus"`.
+- `contents/ui/main.qml` is the root item. It must be a `PlasmoidItem`, which defines `fullRepresentation` and `compactRepresentation`. Representations live in their own files and get the `WeatherService` passed in as a required property.
+- `contents/config/main.xml` defines the applet settings (`Plasmoid.configuration.*`). `contents/config/config.qml` lists the settings pages (in `contents/ui/`); a page binds each entry as `cfg_<name>` and must also declare `cfg_<name>Default`, otherwise Plasma 6 logs "Setting initial properties failed".
+- Translations use the domain `plasma_applet_io.github.leghissa.cumulus` (derived from the plugin ID for packages). Use `i18n*()` in QML.
 
 ## Plugin ID
 
-The plugin ID is `io.github.leghissa.cumulus` (third-party reverse-domain naming; `org.kde.plasma.*` is reserved for Plasma itself). Renaming it means changing the CMake target, `TRANSLATION_DOMAIN`, and the `.pot` name in `Messages.sh` together. `Messages.sh` is the xgettext extraction script for KDE's i18n infrastructure.
+The plugin ID is `io.github.leghissa.cumulus` (third-party reverse-domain naming; `org.kde.plasma.*` is reserved for Plasma itself). Renaming it means changing `KPlugin.Id` in `package/metadata.json`, `CUMULUS_PLUGIN_ID` in `CMakeLists.txt`, and the `.pot` name in `Messages.sh` together. `Messages.sh` is the xgettext extraction script for KDE's i18n infrastructure.
 
 ## Design
 

@@ -1,0 +1,5 @@
+singleton Format 1.0 Format.qml
+CompactRepresentation 1.0 CompactRepresentation.qml
+ConfigGeneral 1.0 ConfigGeneral.qml
+ForecastChart 1.0 ForecastChart.qml
+FullRepresentation 1.0 FullRepresentation.qml

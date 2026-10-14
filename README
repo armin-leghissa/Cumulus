@@ -21,56 +21,72 @@ Plugin ID: io.github.leghissa.cumulus
 cmake -S . -B ../Cumulus_build -DCMAKE_BUILD_TYPE=Debug
 cmake --build ../Cumulus_build
 
-To use the applet in the running Plasma session, install it and restart
-plasmashell:
+The build assembles the complete applet package in ../Cumulus_build/package:
+metadata.json, the QML files and the C++ QML module in
+contents/lib/io/github/leghissa/cumulus/, which the QML files import by
+relative path. The package needs no environment variables or import paths.
 
-sudo cmake --install ../Cumulus_build
-kquitapp6 plasmashell && plasmashell
 
-(The install prefix defaults to /usr; set -DCMAKE_INSTALL_PREFIX when
-configuring to install elsewhere.)
+-- Installing --
+
+cmake --build ../Cumulus_build --target install-user     # ~/.local, no root
+cmake --build ../Cumulus_build --target install-system   # /usr, asks for the password (pkexec)
+cmake --build ../Cumulus_build --target uninstall-user
+cmake --build ../Cumulus_build --target uninstall-system
+
+The applet is installed as one directory:
+<prefix>/share/plasma/plasmoids/io.github.leghissa.cumulus/
+All targets restart plasmashell afterwards, so the change is visible
+immediately. Then add "Cumulus" to a panel or the desktop via
+"Add Widgets…".
+
+The plain "install" and "uninstall" targets (e.g. "Install" in KDevelop)
+follow the CMake cache variable CUMULUS_INSTALL_MODE: USER (default) or
+SYSTEM. Further settings:
+
+* CUMULUS_USER_PREFIX     prefix of the user install, default ~/.local
+* CUMULUS_SYSTEM_PREFIX   prefix of the system install, default /usr
+* CUMULUS_RESTART_PLASMASHELL=OFF   never restart plasmashell
+* environment variable CUMULUS_NO_RESTART=1   skip the restart once
+
+A user install takes precedence over a system install of the same applet.
+Installs with DESTDIR (packaging) never restart plasmashell.
 
 
 -- Testing & Developing --
-
-Cumulus is a compiled applet: the QML files and images are embedded in the
-plugin library (bin/plasma/applets/io.github.leghissa.cumulus.so in the build
-directory). It therefore has to be loaded by its plugin ID, not by a path.
-"plasmoidviewer -a src/" does NOT work and fails with
-"File name empty! ... Invalid empty URL".
 
 From the command line, run the freshly built applet without installing it:
 
 tools/run-plasmoidviewer.sh
 
-The script points QT_PLUGIN_PATH at ../Cumulus_build/bin and starts
-"plasmoidviewer -a io.github.leghissa.cumulus --formfactor planar".
-Set CUMULUS_BUILD_DIR to use a different build directory. Any arguments are
-passed on to plasmoidviewer instead of the default, e.g.:
+The script starts "plasmoidviewer -a ../Cumulus_build/package --formfactor
+planar". Set CUMULUS_BUILD_DIR to use a different build directory. Any
+arguments are passed on to plasmoidviewer instead of the default, e.g.:
 
 tools/run-plasmoidviewer.sh --formfactor vertical --location leftedge
+
+plasmoidviewer forgets the applet configuration on every start and every
+form factor switch. To test with a configured location, install the applet
+and use plasmawindowed, which keeps its configuration:
+
+CUMULUS_NO_RESTART=1 cmake --build ../Cumulus_build --target install-user
+plasmawindowed io.github.leghissa.cumulus
+
+Unit tests:
+
+ctest --test-dir ../Cumulus_build --output-on-failure
 
 Launch configuration in KDevelop:
 
 1. Run > Configure Launches...
-2. Select the project "Cumulus" and add a new "Compiled Binary" launch
-   (do not use the "Plasmoid Launcher" type, see below).
+2. Select the project "Cumulus" and add a new "Compiled Binary" launch.
 3. Executable: choose "Executable" and enter the absolute path to
    tools/run-plasmoidviewer.sh in this repository.
 4. Arguments: leave empty.
 5. Working Directory: the repository root.
-6. Dependencies: add the target io.github.leghissa.cumulus and set the
-   action to "Build", so every launch builds the applet first.
+6. Dependencies: add the project "Cumulus" and set the action to "Build",
+   so every launch builds the applet first.
 7. Save, then start it with Run > Execute Launch (Shift+F9).
-
-Why not set this up differently:
-* The "Plasmoid Launcher" type passes a path or ID to plasmoidviewer but
-  cannot set QT_PLUGIN_PATH, so it cannot find an applet that is only in the
-  build directory.
-* KDevelop rejects shell metacharacters (including "=") in launch arguments
-  ("A shell meta character was included in the arguments ..."), so
-  "QT_PLUGIN_PATH=... plasmoidviewer ..." cannot be entered directly. That is
-  why the wrapper script exists.
 
 
 -- Translations --

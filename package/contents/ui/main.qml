@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 import QtQuick
+import "../lib/io/github/leghissa/cumulus"
 import org.kde.plasma.plasmoid
 
 PlasmoidItem {

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
 # Runs the applet in plasmoidviewer straight from the build directory, without installing.
+# The build assembles the complete applet package (QML files plus C++ module) in <build dir>/package.
 # Build dir defaults to ../Cumulus_build next to the repository; override with CUMULUS_BUILD_DIR.
 # Extra arguments are passed on to plasmoidviewer (default: --formfactor planar).
 
@@ -10,9 +11,10 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 build_dir="${CUMULUS_BUILD_DIR:-$repo_dir/../Cumulus_build}"
+package_dir="$build_dir/package"
 
-if [[ ! -d "$build_dir/bin/plasma/applets" ]]; then
-    echo "No built applet found in $build_dir/bin/plasma/applets - build first." >&2
+if [[ ! -f "$package_dir/metadata.json" ]]; then
+    echo "No applet package found in $package_dir - build first." >&2
     exit 1
 fi
 
@@ -20,5 +22,4 @@ if [[ $# -eq 0 ]]; then
     set -- --formfactor planar
 fi
 
-export QT_PLUGIN_PATH="$build_dir/bin${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
-exec plasmoidviewer -a io.github.leghissa.cumulus "$@"
+exec plasmoidviewer -a "$package_dir" "$@"
