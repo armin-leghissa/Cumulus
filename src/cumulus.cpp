@@ -1,22 +1,22 @@
-// SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+// SPDX-FileCopyrightText: 2026 Armin Leghissa <leghissa@zoho.eu>
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#include "helloworld.h"
+#include "cumulus.h"
 
 #include <KLocalizedString>
 
-QString HelloWorld::message() const
+QString Cumulus::message() const
 {
     return i18nc("@info", "Hello World");
 }
 
-HelloWorld *HelloWorld::create(QQmlEngine *, QJSEngine *)
+Cumulus *Cumulus::create(QQmlEngine *, QJSEngine *)
 {
-    static HelloWorld instance;
+    static Cumulus instance;
     QQmlEngine::setObjectOwnership(&instance, QQmlEngine::CppOwnership);
     return &instance;
 }
 
-HelloWorld::HelloWorld()
+Cumulus::Cumulus()
     : QObject(nullptr)
 {}

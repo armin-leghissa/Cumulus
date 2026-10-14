@@ -1,46 +1,84 @@
-Plasma Applet mixed C++/QML Template
-----------------------
+Cumulus
+-------
 
--- Namespace adaption --
+Displays a 14-day weather forecast with minimum and maximum temperatures and
+the probability of rain.
 
-Each Plasma plugin has a unique identifier, which is also used to find related
-resources (like the translation catalogs).
-To avoid naming collisions, Plasma plugins use a reverse domain name notation
-for that identifier:
+Cumulus is a KDE Plasma 6 applet (plasmoid) written in C++ and QML.
+Plugin ID: io.github.leghissa.cumulus
 
-* org.kde.plasma.* - plugins coming from Plasma modules
-* org.kde.*        - plugins coming from other software from KDE
-* $(my.domain).*   - plugins of your 3rd-party
 
-The generated code uses the "org.kde.plasma" namespace for the plugin identifier.
-As this namespace is reserved for use by plugins part of Plasma modules, you will
-need to adapt this namespace if you are writing a plugin which is not intended to
-end up in the Plasma modules.
+-- Requirements --
+
+* Qt >= 6.7 (Core, Gui, Quick)
+* KDE Frameworks 6 (I18n, Config) and Extra CMake Modules
+* Plasma 6 (libplasma, plasmoidviewer for testing)
+* CMake >= 3.16
 
 
 -- Build instructions --
 
-cd /where/your/applet/is/generated
-mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX=MYPREFIX .. 
-make 
-make install
+cmake -S . -B ../Cumulus_build -DCMAKE_BUILD_TYPE=Debug
+cmake --build ../Cumulus_build
 
-(MYPREFIX is where you install your Plasma setup, replace it accordingly)
+To use the applet in the running Plasma session, install it and restart
+plasmashell:
 
-Restart plasma to load the applet 
-(in a terminal type: 
-kquitapp plasmashell 
-and then
-plasmashell)
+sudo cmake --install ../Cumulus_build
+kquitapp6 plasmashell && plasmashell
 
-or view it with 
-plasmoidviewer -a YourAppletName
+(The install prefix defaults to /usr; set -DCMAKE_INSTALL_PREFIX when
+configuring to install elsewhere.)
 
--- Tutorials and resources --
-The explanation of the template
-https://techbase.kde.org/Development/Tutorials/Plasma5/QML2/GettingStarted
 
-Plasma QML API explained
-https://techbase.kde.org/Development/Tutorials/Plasma2/QML2/API
+-- Testing & Developing --
+
+Cumulus is a compiled applet: the QML files and images are embedded in the
+plugin library (bin/plasma/applets/io.github.leghissa.cumulus.so in the build
+directory). It therefore has to be loaded by its plugin ID, not by a path.
+"plasmoidviewer -a src/" does NOT work and fails with
+"File name empty! ... Invalid empty URL".
+
+From the command line, run the freshly built applet without installing it:
+
+tools/run-plasmoidviewer.sh
+
+The script points QT_PLUGIN_PATH at ../Cumulus_build/bin and starts
+"plasmoidviewer -a io.github.leghissa.cumulus --formfactor planar".
+Set CUMULUS_BUILD_DIR to use a different build directory. Any arguments are
+passed on to plasmoidviewer instead of the default, e.g.:
+
+tools/run-plasmoidviewer.sh --formfactor vertical --location leftedge
+
+Launch configuration in KDevelop:
+
+1. Run > Configure Launches...
+2. Select the project "Cumulus" and add a new "Compiled Binary" launch
+   (do not use the "Plasmoid Launcher" type, see below).
+3. Executable: choose "Executable" and enter the absolute path to
+   tools/run-plasmoidviewer.sh in this repository.
+4. Arguments: leave empty.
+5. Working Directory: the repository root.
+6. Dependencies: add the target io.github.leghissa.cumulus and set the
+   action to "Build", so every launch builds the applet first.
+7. Save, then start it with Run > Execute Launch (Shift+F9).
+
+Why not set this up differently:
+* The "Plasmoid Launcher" type passes a path or ID to plasmoidviewer but
+  cannot set QT_PLUGIN_PATH, so it cannot find an applet that is only in the
+  build directory.
+* KDevelop rejects shell metacharacters (including "=") in launch arguments
+  ("A shell meta character was included in the arguments ..."), so
+  "QT_PLUGIN_PATH=... plasmoidviewer ..." cannot be entered directly. That is
+  why the wrapper script exists.
+
+
+-- Translations --
+
+Messages.sh extracts translatable strings (translation domain
+plasma_applet_io.github.leghissa.cumulus) for KDE's i18n tooling.
+
+
+-- License --
+
+LGPL-2.1-or-later, see LICENSES/.

@@ -1,0 +1,39 @@
+
+# ignoring personal project stuff
+/.kdev4/
+*.kdev4.local
+
+# ignoring backups and swap files
+*~
+*.swp
+*.swo
+*.kate-swp
+
+# ignoring in-source build directories (default build dir is ../Cumulus_build)
+/build*/
+/_build*/
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
+
+# ignoring QML/JS caches
+*.qmlc
+*.jsc
+.qmlls.ini
+
+# ignoring tooling caches and other IDE/editor settings
+/.cache/
+/.clangd
+/.idea/
+/.vscode/
+CMakeLists.txt.user*
+*.autosave
+
+# ignoring merge leftovers and desktop metadata
+*.orig
+*.rej
+.directory
+
+# ignoring personal Claude Code settings
+/.claude/settings.local.json
+/CLAUDE.local.md

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+// SPDX-FileCopyrightText: 2026 Armin Leghissa <leghissa@zoho.eu>
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #pragma once
@@ -7,7 +7,7 @@
 #include <QString>
 #include <QQmlEngine>
 
-class HelloWorld : public QObject
+class Cumulus : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
@@ -16,10 +16,10 @@ class HelloWorld : public QObject
     Q_PROPERTY(QString message READ message CONSTANT)
 
 public:
-    static HelloWorld *create(QQmlEngine *, QJSEngine *);
+    static Cumulus *create(QQmlEngine *, QJSEngine *);
 
     QString message() const;
 
 private:
-    HelloWorld();
+    Cumulus();
 };

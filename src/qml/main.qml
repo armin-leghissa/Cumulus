@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: %{CURRENT_YEAR} %{AUTHOR} <%{EMAIL}>
+// SPDX-FileCopyrightText: 2026 Armin Leghissa <leghissa@zoho.eu>
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 import QtQuick
@@ -19,7 +19,7 @@ PlasmoidItem {
         }
         PC3.Label {
             Layout.alignment: Qt.AlignCenter
-            text: HelloWorld.message
+            text: Cumulus.message
         }
     }
 }
