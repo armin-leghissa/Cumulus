@@ -143,7 +143,7 @@ KCM.SimpleKCM {
         // Charts
 
         QQC2.SpinBox {
-            Kirigami.FormData.label: i18nc("@label:spinbox", "Visible columns:")
+            Kirigami.FormData.label: i18nc("@label:spinbox", "Initially visible columns:")
             from: 3
             to: 14
             value: page.cfg_visibleColumns

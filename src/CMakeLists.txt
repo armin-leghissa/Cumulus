@@ -21,6 +21,7 @@ plasma_add_applet(io.github.leghissa.cumulus
         qml/main.qml
         qml/CompactRepresentation.qml
         qml/FullRepresentation.qml
+        qml/ForecastChart.qml
         qml/Format.qml
         config/config.qml
         config/ConfigGeneral.qml

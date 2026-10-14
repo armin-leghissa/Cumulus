@@ -158,9 +158,12 @@ files. No network in tests. UI checks stay manual via
 
 ## D7 – Charts: KQuickCharts, composed in QML
 
-**Decision:** Draw the charts with [KQuickCharts](https://api.kde.org/kquickcharts-index.html)
-(KF6, `org.kde.quickcharts`): `LineChart` for max/min temperature,
-`BarChart` for precipitation, stacked in one item with shared value ranges.
+**Decision:** Draw the temperature lines with [KQuickCharts](https://api.kde.org/kquickcharts-index.html)
+(KF6, `org.kde.quickcharts`) `LineChart`, with a fixed value range from the
+model (`temperatureMinimum`/`temperatureMaximum`). Precipitation bars,
+value labels and column backgrounds are plain QML items per column
+(implemented 2026-10-14): they must line up exactly with the fixed columns
+and carry labels at the bar's top edge, which `BarChart` does not offer.
 The column headers (weekday/hour, icon, wind) are a QML `Repeater` aligned to
 the chart columns. All of it is one reusable QML component
 (`ForecastChart.qml`) that is fed by a C++ model, used for both the daily and
@@ -181,8 +184,8 @@ Alternatives:
 - **Own `QQuickPaintedItem`/`Canvas`**: full control, but re-implements
   scaling, theming and HiDPI. Only if KQuickCharts turns out not to be enough.
 
-Both charts use fixed column widths (chart width / visible-columns
-setting) and scroll horizontally (see ui-guidelines.md). The chart component
+Both charts use a fixed column width (4.5 grid units; the visible-columns
+setting only sizes the popup initially) and scroll horizontally (see ui-guidelines.md). The chart component
 sits in a horizontal `Flickable` with content width = rows × column width;
 the column headers are part of the same content, so they scroll with it.
 No fitting to daylight windows, so no variable zoom.

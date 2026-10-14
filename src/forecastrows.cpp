@@ -3,6 +3,8 @@
 
 #include "forecastrows.h"
 
+#include <algorithm>
+
 namespace
 {
 QDate today(const Forecast &forecast, const QDateTime &now)
@@ -63,11 +65,47 @@ QList<HourRow> hours(const Forecast &forecast, const QDateTime &now)
         rows.append({
             .data = hour,
             .dayIndex = int(first.daysTo(hour.time.date())),
+            .weekday = hour.time.date().dayOfWeek() % 7,
             .isNight = night,
             .iconName = WeatherCode::iconName(hour.weatherCode, night),
         });
     }
     return rows;
+}
+
+namespace
+{
+void extend(std::optional<std::pair<double, double>> &range, const std::optional<double> &value)
+{
+    if (!value) {
+        return;
+    }
+    if (!range) {
+        range = std::pair(*value, *value);
+    } else {
+        range->first = std::min(range->first, *value);
+        range->second = std::max(range->second, *value);
+    }
+}
+}
+
+std::optional<std::pair<double, double>> temperatureRange(const QList<DayRow> &rows)
+{
+    std::optional<std::pair<double, double>> range;
+    for (const DayRow &row : rows) {
+        extend(range, row.data.temperatureMin);
+        extend(range, row.data.temperatureMax);
+    }
+    return range;
+}
+
+std::optional<std::pair<double, double>> temperatureRange(const QList<HourRow> &rows)
+{
+    std::optional<std::pair<double, double>> range;
+    for (const HourRow &row : rows) {
+        extend(range, row.data.temperature);
+    }
+    return range;
 }
 
 int firstHourOfDay(const QList<HourRow> &rows, int dayIndex)

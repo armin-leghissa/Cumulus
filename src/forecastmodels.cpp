@@ -25,6 +25,10 @@ QVariant DailyForecastModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case DateRole:
         return row.data.date;
+    case DayRole:
+        return row.data.date.day();
+    case MonthRole:
+        return row.data.date.month();
     case WeekdayRole:
         return row.weekday;
     case IsTodayRole:
@@ -51,6 +55,8 @@ QHash<int, QByteArray> DailyForecastModel::roleNames() const
 {
     return {
         {DateRole, "date"},
+        {DayRole, "day"},
+        {MonthRole, "month"},
         {WeekdayRole, "weekday"},
         {IsTodayRole, "isToday"},
         {IconNameRole, "iconName"},
@@ -67,7 +73,19 @@ void DailyForecastModel::setRows(const QList<DayRow> &rows)
 {
     beginResetModel();
     m_rows = rows;
+    m_range = ForecastRows::temperatureRange(m_rows).value_or(std::pair(0.0, 0.0));
     endResetModel();
+    Q_EMIT rowsChanged();
+}
+
+double DailyForecastModel::temperatureMinimum() const
+{
+    return m_range.first;
+}
+
+double DailyForecastModel::temperatureMaximum() const
+{
+    return m_range.second;
 }
 
 const QList<DayRow> &DailyForecastModel::rows() const
@@ -93,6 +111,8 @@ QVariant HourlyForecastModel::data(const QModelIndex &index, int role) const
         return row.data.time.time().hour();
     case DayIndexRole:
         return row.dayIndex;
+    case WeekdayRole:
+        return row.weekday;
     case IsNightRole:
         return row.isNight;
     case IconNameRole:
@@ -117,6 +137,7 @@ QHash<int, QByteArray> HourlyForecastModel::roleNames() const
         {TimeRole, "time"},
         {HourRole, "hour"},
         {DayIndexRole, "dayIndex"},
+        {WeekdayRole, "weekday"},
         {IsNightRole, "isNight"},
         {IconNameRole, "iconName"},
         {TemperatureRole, "temperature"},
@@ -131,7 +152,19 @@ void HourlyForecastModel::setRows(const QList<HourRow> &rows)
 {
     beginResetModel();
     m_rows = rows;
+    m_range = ForecastRows::temperatureRange(m_rows).value_or(std::pair(0.0, 0.0));
     endResetModel();
+    Q_EMIT rowsChanged();
+}
+
+double HourlyForecastModel::temperatureMinimum() const
+{
+    return m_range.first;
+}
+
+double HourlyForecastModel::temperatureMaximum() const
+{
+    return m_range.second;
 }
 
 int HourlyForecastModel::firstHourOfDay(int dayIndex) const

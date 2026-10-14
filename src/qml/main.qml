@@ -38,6 +38,7 @@ PlasmoidItem {
 
     fullRepresentation: FullRepresentation {
         weather: weatherService
+        expanded: root.expanded
         locationName: Plasmoid.configuration.locationName
     }
 }

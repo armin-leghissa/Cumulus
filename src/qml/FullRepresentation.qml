@@ -6,23 +6,71 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PC3
 import org.kde.plasma.extras as PlasmaExtras
+import org.kde.plasma.plasmoid
 
-// Popup. Interim day list until the charts are implemented (docs/ui-guidelines.md).
+// Popup: 14-day chart and hourly chart, synced by the selected day (docs/ui-guidelines.md).
 ColumnLayout {
     id: full
 
     required property WeatherService weather
     required property string locationName
+    required property bool expanded
 
-    Layout.preferredWidth: Kirigami.Units.gridUnit * 24
-    Layout.preferredHeight: Kirigami.Units.gridUnit * 22
+    // selected calendar day, 0 = today
+    property int selectedDay: 0
+
+    // Fixed column width: a wider popup shows more columns. The setting only sets the initial width.
+    readonly property real columnWidth: Kirigami.Units.gridUnit * 4.5
+    readonly property int visibleColumns: Math.max(3, Plasmoid.configuration.visibleColumns)
+    readonly property bool hourlyAbove: Plasmoid.configuration.hourlyChartPosition === 1
+
+    function selectDay(day) {
+        selectedDay = day;
+        const row = weather.hourlyModel.firstHourOfDay(day);
+        if (row >= 0) {
+            hourlyChart.scrollToIndex(row, true);
+        }
+    }
+
+    // today is selected whenever the popup opens
+    onExpandedChanged: {
+        if (expanded) {
+            selectedDay = 0;
+            dailyChart.scrollToIndex(0, false);
+            hourlyChart.scrollToIndex(0, false);
+        }
+    }
+    onSelectedDayChanged: dailyChart.ensureVisible(selectedDay)
+
+    Layout.preferredWidth: columnWidth * visibleColumns
+    Layout.preferredHeight: Kirigami.Units.gridUnit * 30
+    Layout.minimumWidth: columnWidth * 3
+    Layout.minimumHeight: Kirigami.Units.gridUnit * 22
     spacing: Kirigami.Units.smallSpacing
 
-    PlasmaExtras.Heading {
+    RowLayout {
         Layout.fillWidth: true
-        level: 3
-        text: full.locationName
-        elide: Text.ElideRight
+
+        PlasmaExtras.Heading {
+            Layout.fillWidth: true
+            level: 3
+            text: full.locationName
+            elide: Text.ElideRight
+        }
+        PC3.BusyIndicator {
+            Layout.preferredWidth: Kirigami.Units.iconSizes.small
+            Layout.preferredHeight: Kirigami.Units.iconSizes.small
+            visible: full.weather.status === WeatherService.Loading
+            running: visible
+        }
+        PC3.Label {
+            visible: full.weather.hasForecast
+            font: Kirigami.Theme.smallFont
+            opacity: 0.7
+            text: full.weather.status === WeatherService.Error
+                  ? i18nc("@info:status", "Update failed, data from %1", Qt.formatTime(full.weather.lastUpdated, Qt.locale().timeFormat(Locale.ShortFormat)))
+                  : i18nc("@info:status", "Updated %1", Qt.formatTime(full.weather.lastUpdated, Qt.locale().timeFormat(Locale.ShortFormat)))
+        }
     }
 
     PlasmaExtras.PlaceholderMessage {
@@ -36,52 +84,72 @@ ColumnLayout {
         explanation: full.weather.status === WeatherService.Error ? full.weather.errorString : ""
     }
 
-    ListView {
+    // rows: chart block, separator, chart block; the order of the blocks follows the setting
+    GridLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         visible: full.weather.hasForecast
-        clip: true
-        model: full.weather.dailyModel
+        columns: 1
+        rowSpacing: Kirigami.Units.smallSpacing
 
-        delegate: RowLayout {
-            required property int weekday
-            required property string iconName
-            required property var temperatureMin
-            required property var temperatureMax
-            required property var precipitationProbability
-            required property bool precipitationProbabilityFallback
-            required property var precipitationAmount
-            required property var windSpeed
+        PlasmaExtras.Heading {
+            Layout.row: full.hourlyAbove ? 3 : 0
+            Layout.fillWidth: true
+            level: 5
+            text: i18nc("@title", "14-day forecast")
+        }
 
-            width: ListView.view.width
-            spacing: Kirigami.Units.largeSpacing
+        ForecastChart {
+            id: dailyChart
+            Layout.row: full.hourlyAbove ? 4 : 1
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            model: full.weather.dailyModel
+            hourly: false
+            columnWidth: full.columnWidth
+            selectedIndex: full.selectedDay
+            windSpeedSymbol: full.weather.windSpeedSymbol
+            precipitationSymbol: full.weather.precipitationSymbol
+            onColumnClicked: index => full.selectDay(index)
+        }
 
-            PC3.Label {
-                Layout.preferredWidth: Kirigami.Units.gridUnit * 2
-                text: Qt.locale().standaloneDayName(weekday, Locale.ShortFormat)
+        Kirigami.Separator {
+            Layout.row: 2
+            Layout.fillWidth: true
+            Layout.topMargin: Kirigami.Units.smallSpacing
+            Layout.bottomMargin: Kirigami.Units.smallSpacing
+        }
+
+        PlasmaExtras.Heading {
+            Layout.row: full.hourlyAbove ? 0 : 3
+            Layout.fillWidth: true
+            level: 5
+            text: i18nc("@title", "Hourly forecast")
+        }
+
+        ForecastChart {
+            id: hourlyChart
+            Layout.row: full.hourlyAbove ? 1 : 4
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            model: full.weather.hourlyModel
+            hourly: true
+            columnWidth: full.columnWidth
+            windSpeedSymbol: full.weather.windSpeedSymbol
+            precipitationSymbol: full.weather.precipitationSymbol
+
+            // selection follows scrolling: the day of the first visible hour
+            function syncSelectedDay() {
+                if (scrollAnimating) {
+                    return; // a selected day is being scrolled to; don't select the days passed on the way
+                }
+                const day = full.weather.hourlyModel.dayIndexAt(firstVisibleIndex);
+                if (day >= 0) {
+                    full.selectedDay = day;
+                }
             }
-            Kirigami.Icon {
-                Layout.preferredWidth: Kirigami.Units.iconSizes.medium
-                Layout.preferredHeight: Kirigami.Units.iconSizes.medium
-                source: iconName
-            }
-            PC3.Label {
-                Layout.preferredWidth: Kirigami.Units.gridUnit * 4
-                text: Format.temperature(temperatureMin) + " / " + Format.temperature(temperatureMax)
-            }
-            PC3.Label {
-                Layout.preferredWidth: Kirigami.Units.gridUnit * 3
-                text: Format.percent(precipitationProbability)
-                opacity: precipitationProbabilityFallback ? 0.6 : 1
-            }
-            PC3.Label {
-                Layout.preferredWidth: Kirigami.Units.gridUnit * 3
-                text: Format.precipitation(precipitationAmount, full.weather.precipitationSymbol)
-            }
-            PC3.Label {
-                Layout.fillWidth: true
-                text: Format.windSpeed(windSpeed, full.weather.windSpeedSymbol)
-            }
+            onFirstVisibleIndexChanged: syncSelectedDay()
+            onScrollAnimatingChanged: syncSelectedDay()
         }
     }
 

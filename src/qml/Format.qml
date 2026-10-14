@@ -9,6 +9,10 @@ import QtQuick
 QtObject {
     readonly property string noValue: "–"
 
+    // chart line colours, also used for the temperatures on the panel icon
+    readonly property color temperatureMaxColor: "#e74c3c"
+    readonly property color temperatureMinColor: "#3498db"
+
     function hasValue(value) {
         return value !== undefined && value !== null;
     }
@@ -20,6 +24,29 @@ QtObject {
     // e.g. "18°"
     function temperature(value) {
         return hasValue(value) ? number(Math.round(value), 0) + "°" : noValue;
+    }
+
+    // Day and month in the locale's order and separator, without year and leading zeros:
+    // "12.10." (de), "10/12" (en_US), "12/10" (en_GB).
+    function dayMonth(day, month) {
+        const format = Qt.locale().dateFormat(Locale.ShortFormat);
+        const dayFirst = format.indexOf("d") < format.indexOf("M");
+        const separator = (format.match(/[dM]+([^dMy]+)[dM]/) || [null, "."])[1];
+        const text = dayFirst ? day + separator + month : month + separator + day;
+        return separator === "." ? text + "." : text;
+    }
+
+    readonly property bool twelveHourClock: /[aA]/.test(Qt.locale().timeFormat(Locale.ShortFormat))
+
+    // hour of day (0–23) as "13:00", or "1 PM" for 12-hour locales
+    function hour(value) {
+        if (!hasValue(value)) {
+            return noValue;
+        }
+        if (twelveHourClock) {
+            return (value % 12 === 0 ? 12 : value % 12) + " " + (value < 12 ? Qt.locale().amText : Qt.locale().pmText);
+        }
+        return (value < 10 ? "0" : "") + value + ":00";
     }
 
     // e.g. "60 %"

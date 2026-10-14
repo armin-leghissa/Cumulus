@@ -33,6 +33,8 @@ find_package(Plasma REQUIRED)
 # QML-only runtime dependencies
 find_package(KF6Kirigami ${KF6_MIN_VERSION} CONFIG)
 set_package_properties(KF6Kirigami PROPERTIES TYPE RUNTIME)
+find_package(KF6QuickCharts ${KF6_MIN_VERSION} CONFIG)
+set_package_properties(KF6QuickCharts PROPERTIES TYPE RUNTIME)
 
 add_subdirectory(src)
 

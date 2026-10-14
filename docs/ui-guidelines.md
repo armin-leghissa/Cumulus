@@ -17,6 +17,8 @@ How Cumulus looks and behaves. Technical decisions are in
 - Optional, by setting: today's temperature overlaid on the icon, either
   - max only (e.g. `18°`), or
   - min and max (e.g. `7°/18°`).
+- The temperatures use the colours of the chart lines (max red, min blue);
+  the slash keeps the normal text colour.
 - The text sits on top of the icon and must stay readable on any icon and
   panel background (e.g. text outline/shadow or a subtle backdrop) and scale
   with the panel size.
@@ -35,23 +37,29 @@ Both charts (14 days and hourly) share one look and are built from the same
 QML component; only the data model and the column labels differ.
 
 Layout and scrolling, for both charts:
-- Fixed column width. The number of visible columns is a setting (default
-  5); column width = chart width / that number. No fitting to day or
+- Fixed column width (4.5 grid units), independent of the popup size: a
+  wider popup shows more columns. The "initially visible columns" setting
+  (default 5) only sets the popup's initial width. No fitting to day or
   daylight lengths.
+- Each chart has a small heading ("14-day forecast", "Hourly forecast");
+  a horizontal separator line divides the two charts.
 - Horizontally scrollable (swipe/drag, mouse wheel). Never into the past:
   the daily chart starts at today, the hourly chart at the current hour.
 - The value axes are fixed over all data of the chart, so the scale does
   not jump while scrolling.
 
 Daily chart, one column per day:
-- Column header: localized short weekday name, without trailing dot
-  (`Qt.locale().standaloneDayName(day, Locale.ShortFormat)`, gives
-  "Mo, Di, …" in German, "Mon, Tue, …" in English).
+- Column header: localized short weekday name without trailing dot
+  (`Qt.locale().standaloneDayName(day, Locale.ShortFormat)`) and the date as
+  day and month in the locale's order, without year and leading zeros:
+  "Mo, 12.10." in German, "Mon, 10/12" in US English. If that does not fit
+  the column width, the date goes on a second line below the weekday.
 - Weather icon representing the day's overall weather (system icon theme),
   condensed according to the day icon mode setting.
 - Average wind speed of the day as a number.
-- Red line: maximum temperature.
-- Blue line: minimum temperature.
+- Red line: maximum temperature, with the value above each point.
+- Blue line: minimum temperature, with the value below each point.
+- Today's weekday label is bold; the selected day has a highlighted column.
 - Semi-transparent light blue bars: precipitation probability (bar height,
   0–100 %). The precipitation amount is shown as a label at the inner top
   edge of the bar (e.g. `2.4 mm`); no label when the amount is 0.
@@ -64,11 +72,13 @@ Hourly chart, always visible above or below the daily chart:
   appear in sequence; nothing is skipped.
 - Column header: the hour, plus icon, wind and precipitation bars as in the
   daily chart.
-- A single red line for the hourly temperature (there is no min/max per
-  hour).
+- A single red line for the hourly temperature, with the value above each
+  point (there is no min/max per hour).
+- At 00:00 the column shows the weekday (bold) instead of the hour, with a
+  thin separator line.
 - Night hours (between sunset and the next sunrise) get the theme's
-  background colour, slightly darkened (e.g. `Qt.darker(Kirigami.Theme.backgroundColor, 1.1)`),
-  so the day/night boundary is visible in light and dark themes.
+  background colour, very slightly darkened (`Qt.darker(Kirigami.Theme.backgroundColor, 1.04)`),
+  a subtle hint of the day/night boundary in light and dark themes.
 - Selection follows scrolling: the calendar day (local midnight to
   midnight, not daylight) of the first visible hour is the selected day in
   the 14-day chart. If it is scrolled out of view there, the
@@ -97,7 +107,8 @@ Hourly chart, always visible above or below the daily chart:
 - Temperature overlay on the panel icon: off (default), max only, or min
   and max.
 - Refresh interval, default 60 min, minimum 15 min.
-- Number of visible chart columns, default 5 (applies to both charts).
+- Initially visible chart columns, default 5: sets the popup's initial width
+  (columns have a fixed width).
 - Position of the hourly chart: below (default) or above the 14-day chart.
 - Day icon mode: optimistic, average (default) or pessimistic. Decides how
   the hours of a day are condensed into one icon (see decisions.md D8).

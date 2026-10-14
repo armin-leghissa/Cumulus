@@ -49,6 +49,8 @@ private Q_SLOTS:
         QCOMPARE(rows[0].dayIndex, 0);
         QCOMPARE(rows[11].data.time, QDateTime(FirstDay.addDays(1), QTime(0, 0), Zone));
         QCOMPARE(rows[11].dayIndex, 1);
+        QCOMPARE(rows[0].weekday, 1); // Monday
+        QCOMPARE(rows[11].weekday, 2);
         QCOMPARE(rows.last().dayIndex, 2);
     }
 
@@ -63,6 +65,20 @@ private Q_SLOTS:
         QVERIFY(rows[18].isNight);
         QCOMPARE(rows[22].iconName, u"weather-clear-night"_s);
         QCOMPARE(rows[12].iconName, u"weather-clear"_s);
+    }
+
+    void computesTemperatureRange()
+    {
+        Forecast forecast = makeForecast(FirstDay, 3); // min 5 + d, max 15 + d
+        forecast.days[1].temperatureMax.reset();
+        const auto now = QDateTime(FirstDay, QTime(10, 0), Zone);
+        QCOMPARE(ForecastRows::temperatureRange(ForecastRows::days(forecast, now, DayIconMode::Average)), std::pair(5.0, 17.0));
+
+        forecast.hours[12].temperature = -3.5;
+        forecast.hours[30].temperature = 21;
+        QCOMPARE(ForecastRows::temperatureRange(ForecastRows::hours(forecast, now)), std::pair(-3.5, 21.0));
+
+        QVERIFY(!ForecastRows::temperatureRange(QList<DayRow>()));
     }
 
     void findsFirstHourOfDay()

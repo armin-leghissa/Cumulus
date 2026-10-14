@@ -31,9 +31,16 @@ MouseArea {
         width: parent.width
         horizontalAlignment: Text.AlignHCenter
         visible: compact.panelTemperature > 0 && compact.weather.hasForecast
-        text: compact.panelTemperature === 2
-              ? Format.temperature(compact.weather.todayTemperatureMin) + "/" + Format.temperature(compact.weather.todayTemperatureMax)
-              : Format.temperature(compact.weather.todayTemperatureMax)
+        // max in the colour of the max line, min in the colour of the min line, slash in the text colour
+        textFormat: Text.StyledText
+        text: {
+            const max = "<font color=\"" + Format.temperatureMaxColor + "\">" + Format.temperature(compact.weather.todayTemperatureMax) + "</font>";
+            if (compact.panelTemperature !== 2) {
+                return max;
+            }
+            const min = "<font color=\"" + Format.temperatureMinColor + "\">" + Format.temperature(compact.weather.todayTemperatureMin) + "</font>";
+            return min + "/" + max;
+        }
         font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize * 0.8, parent.height * 0.32)
         font.bold: true
         fontSizeMode: Text.HorizontalFit
