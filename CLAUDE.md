@@ -13,7 +13,7 @@ Stack: Qt â‰¥ 6.7 (Quick, Core, Gui), KF6 (I18n, Config), Plasma 6, ECM/CMake â‰
 The KDevelop project builds out of source into `../Cumulus_build` (Debug):
 
 ```bash
-cmake -S . -B ../Cumulus_build -DCMAKE_BUILD_TYPE=Debug   # add -DCMAKE_INSTALL_PREFIX=<prefix> to install elsewhere
+cmake -S . -B ../Cumulus_build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON   # add -DCMAKE_INSTALL_PREFIX=<prefix> to install elsewhere
 cmake --build ../Cumulus_build
 tools/run-plasmoidviewer.sh   # run from the build dir without installing (CUMULUS_BUILD_DIR overrides the build dir)
 ```
@@ -22,13 +22,22 @@ This is a compiled C++ applet: QML and assets are embedded in the plugin `.so` (
 
 To use it in the real shell, `cmake --install ../Cumulus_build` (prefix `/usr`, needs root), then `kquitapp6 plasmashell && plasmashell`. A stale build dir can still contain outputs under an old plugin ID in `bin/plasma/`.
 
-The repository has no tests or lint setup.
+Tests (QtTest via `ecm_add_tests`, in `autotests/`, no network; `autotests/data/` holds a recorded API response):
+
+```bash
+ctest --test-dir ../Cumulus_build --output-on-failure
+ctest --test-dir ../Cumulus_build -R weathercodetest   # single test; or run ../Cumulus_build/bin/weathercodetest <testfunction>
+```
+
+plasmoidviewer resets its applet configuration on every start, so it always shows the "not configured" state. To test with a location, use `QT_PLUGIN_PATH=../Cumulus_build/bin plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`.
 
 ## Architecture
 
 - `plasma_add_applet(io.github.leghissa.cumulus ... GENERATE_APPLET_CLASS)` in `src/CMakeLists.txt` builds a single plugin that bundles the QML (`QML_SOURCES`), the C++ (`CPP_SOURCES`), and resources such as images into a Qt resource. Any new `.qml`, `.cpp`, or asset file must be added to the matching list there. `GENERATE_APPLET_CLASS` means there is no hand-written `Plasma::Applet` subclass.
-- C++ types reach QML through declarative registration (`QML_ELEMENT` / `QML_SINGLETON` plus a static `create()` factory). See `Cumulus` in `src/cumulus.h`. QML uses these types directly, with no import or `qmlRegisterType` call.
-- `src/qml/main.qml` is the root item. It must be a `PlasmoidItem`, which defines `fullRepresentation` (and optionally `compactRepresentation`). Resources resolve relative to the QML file, for example `Qt.resolvedUrl("./pairs.svg")`.
+- C++ is split in two: `cumulus_core` (static library: `openmeteo` request/parsing, `weathercode` day icon rule and icon names, `forecastrows` display rows, `units`) has no Qt Quick or network dependency and is what the unit tests link against. The applet target adds the QML-facing classes: `WeatherService` (network, cache, refresh timers) and the list models in `forecastmodels`.
+- C++ types reach QML through declarative registration (`QML_ELEMENT`, `QML_UNCREATABLE`). Types compiled into the applet target are visible in its QML files without an import. `qml/Format.qml` is a QML singleton for display formatting (`QT_QML_SINGLETON_TYPE` in `src/CMakeLists.txt`).
+- `src/qml/main.qml` is the root item. It must be a `PlasmoidItem`, which defines `fullRepresentation` (and optionally `compactRepresentation`). Files in `QML_SOURCES`/`RESOURCES` end up flat in the applet's QML module (`qrc:/qt/qml/plasma/applet/io/github/leghissa/cumulus/`), so `config/main.xml` is found as `main.xml`. Representations live in their own files and get the `WeatherService` passed in as a required property.
+- `src/config/main.xml` defines the applet settings (`Plasmoid.configuration.*`).
 - `src/metadata.json` is the KPackage metadata: the plugin ID comes from the CMake target name, and the file also holds the display name, icon, category, and `X-Plasma-API-Minimum-Version`.
 - Translations use the domain `plasma_applet_io.github.leghissa.cumulus`, set with `TRANSLATION_DOMAIN` in `src/CMakeLists.txt`. Use `i18n*()` in both C++ and QML.
 

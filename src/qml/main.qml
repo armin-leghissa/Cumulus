@@ -2,24 +2,42 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 import QtQuick
-import QtQuick.Layouts
 import org.kde.plasma.plasmoid
-import org.kde.plasma.components as PC3
 
 PlasmoidItem {
     id: root
 
-    fullRepresentation: ColumnLayout {
-        anchors.fill: parent
-        Image {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            fillMode: Image.PreserveAspectFit
-            source: Qt.resolvedUrl("./pairs.svg")
+    readonly property bool hasLocation: Plasmoid.configuration.locationName !== ""
+
+    WeatherService {
+        id: weatherService
+        hasLocation: root.hasLocation
+        latitude: Plasmoid.configuration.latitude
+        longitude: Plasmoid.configuration.longitude
+        refreshInterval: Plasmoid.configuration.refreshInterval
+        dayIconMode: Plasmoid.configuration.dayIconMode
+    }
+
+    Plasmoid.icon: weatherService.todayIconName
+    Plasmoid.configurationRequired: !hasLocation
+
+    toolTipMainText: hasLocation ? Plasmoid.configuration.locationName : Plasmoid.title
+    toolTipSubText: {
+        if (!weatherService.hasForecast) {
+            return "";
         }
-        PC3.Label {
-            Layout.alignment: Qt.AlignCenter
-            text: Cumulus.message
-        }
+        return i18nc("@info:tooltip today's minimum and maximum temperature", "Today: %1 – %2",
+                     Format.temperature(weatherService.todayTemperatureMin),
+                     Format.temperature(weatherService.todayTemperatureMax));
+    }
+
+    compactRepresentation: CompactRepresentation {
+        weather: weatherService
+        onToggleRequested: root.expanded = !root.expanded
+    }
+
+    fullRepresentation: FullRepresentation {
+        weather: weatherService
+        locationName: Plasmoid.configuration.locationName
     }
 }

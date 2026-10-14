@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SPDX-FileCopyrightText: 2026 Armin Leghissa <leghissa@zoho.eu>
+    SPDX-License-Identifier: LGPL-2.1-or-later
+-->
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <!-- Location; empty name means "not configured" -->
+    <entry name="locationName" type="String">
+      <default></default>
+    </entry>
+    <entry name="latitude" type="Double">
+      <default>0</default>
+    </entry>
+    <entry name="longitude" type="Double">
+      <default>0</default>
+    </entry>
+
+    <!-- Temperature overlay on the panel icon: 0 = off, 1 = max, 2 = min and max -->
+    <entry name="panelTemperature" type="Int">
+      <default>0</default>
+    </entry>
+
+    <!-- Minutes, minimum 15 -->
+    <entry name="refreshInterval" type="Int">
+      <default>60</default>
+      <min>15</min>
+    </entry>
+
+    <!-- How a day is condensed into one icon: 0 = optimistic, 1 = average, 2 = pessimistic -->
+    <entry name="dayIconMode" type="Int">
+      <default>1</default>
+    </entry>
+
+    <!-- Number of visible columns in both charts -->
+    <entry name="visibleColumns" type="Int">
+      <default>5</default>
+      <min>3</min>
+      <max>14</max>
+    </entry>
+
+    <!-- Position of the hourly chart: 0 = below, 1 = above the 14-day chart -->
+    <entry name="hourlyChartPosition" type="Int">
+      <default>0</default>
+    </entry>
+  </group>
+</kcfg>
