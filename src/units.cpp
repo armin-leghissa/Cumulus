@@ -9,13 +9,13 @@ Units Units::forMeasurementSystem(QLocale::MeasurementSystem system)
 {
     switch (system) {
     case QLocale::ImperialUSSystem:
-        return {u"fahrenheit"_s, u"mph"_s, u"inch"_s, u"°F"_s, u"mph"_s, u"in"_s};
+        return {u"fahrenheit"_s, u"mph"_s, u"inch"_s};
     case QLocale::ImperialUKSystem:
-        return {u"celsius"_s, u"mph"_s, u"mm"_s, u"°C"_s, u"mph"_s, u"mm"_s};
+        return {u"celsius"_s, u"mph"_s, u"mm"_s};
     case QLocale::MetricSystem:
         break;
     }
-    return {u"celsius"_s, u"kmh"_s, u"mm"_s, u"°C"_s, u"km/h"_s, u"mm"_s};
+    return {u"celsius"_s, u"kmh"_s, u"mm"_s};
 }
 
 Units Units::fromSystem()

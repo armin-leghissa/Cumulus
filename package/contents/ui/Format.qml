@@ -5,9 +5,13 @@ pragma Singleton
 
 import QtQuick
 
-// Display formatting only; values and units come from WeatherService.
+// Display formatting only; values and units come from WeatherService, the unit symbols are translated here.
 QtObject {
     readonly property string noValue: "–"
+
+    // A singleton is created outside the applet's QML context, where Plasma sets the translation
+    // domain, so plain i18n() would not translate here.
+    readonly property string domain: "plasma_applet_io.github.leghissa.cumulus"
 
     // chart line colours, also used for the temperatures on the panel icon
     readonly property color temperatureMaxColor: "#e74c3c"
@@ -51,19 +55,25 @@ QtObject {
 
     // e.g. "60 %"
     function percent(value) {
-        return hasValue(value) ? i18nc("@label percentage", "%1 %", number(Math.round(value), 0)) : noValue;
+        return hasValue(value) ? i18ndc(domain, "@label percentage", "%1 %", number(Math.round(value), 0)) : noValue;
     }
 
-    // e.g. "12 km/h"
-    function windSpeed(value, symbol) {
-        return hasValue(value) ? number(Math.round(value), 0) + " " + symbol : noValue;
+    // e.g. "12 km/h"; unit is WeatherService.windSpeedUnit
+    function windSpeed(value, unit) {
+        if (!hasValue(value)) {
+            return noValue;
+        }
+        const text = number(Math.round(value), 0);
+        return unit === "mph" ? i18ndc(domain, "@label wind speed in miles per hour", "%1 mph", text)
+                              : i18ndc(domain, "@label wind speed in kilometres per hour", "%1 km/h", text);
     }
 
-    // e.g. "2.4 mm"; empty for zero, so no label is shown
-    function precipitation(value, symbol) {
+    // e.g. "2.4 mm"; empty for zero, so no label is shown; unit is WeatherService.precipitationUnit
+    function precipitation(value, unit) {
         if (!hasValue(value) || value <= 0) {
             return "";
         }
-        return number(value, symbol === "in" ? 2 : 1) + " " + symbol;
+        return unit === "inch" ? i18ndc(domain, "@label precipitation amount in inches", "%1 in", number(value, 2))
+                               : i18ndc(domain, "@label precipitation amount in millimetres", "%1 mm", number(value, 1));
     }
 }

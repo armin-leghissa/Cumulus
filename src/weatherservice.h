@@ -42,9 +42,9 @@ class WeatherService : public QObject
     Q_PROPERTY(QString todayIconName READ todayIconName NOTIFY forecastChanged)
     Q_PROPERTY(QVariant todayTemperatureMin READ todayTemperatureMin NOTIFY forecastChanged)
     Q_PROPERTY(QVariant todayTemperatureMax READ todayTemperatureMax NOTIFY forecastChanged)
-    Q_PROPERTY(QString temperatureSymbol READ temperatureSymbol CONSTANT)
-    Q_PROPERTY(QString windSpeedSymbol READ windSpeedSymbol CONSTANT)
-    Q_PROPERTY(QString precipitationSymbol READ precipitationSymbol CONSTANT)
+    // units as Open-Meteo names them: kmh | mph, mm | inch
+    Q_PROPERTY(QString windSpeedUnit READ windSpeedUnit CONSTANT)
+    Q_PROPERTY(QString precipitationUnit READ precipitationUnit CONSTANT)
 
 public:
     enum Status {
@@ -78,9 +78,8 @@ public:
     QString todayIconName() const;
     QVariant todayTemperatureMin() const;
     QVariant todayTemperatureMax() const;
-    QString temperatureSymbol() const;
-    QString windSpeedSymbol() const;
-    QString precipitationSymbol() const;
+    QString windSpeedUnit() const;
+    QString precipitationUnit() const;
 
     // Fetches the forecast now, regardless of its age.
     Q_INVOKABLE void refresh();

@@ -127,10 +127,10 @@ private Q_SLOTS:
 
     void unitsFollowMeasurementSystem()
     {
-        QCOMPARE(Units::forMeasurementSystem(QLocale::MetricSystem).windSpeedSymbol, u"km/h"_s);
+        QCOMPARE(Units::forMeasurementSystem(QLocale::MetricSystem).windSpeed, u"kmh"_s);
         QCOMPARE(Units::forMeasurementSystem(QLocale::ImperialUKSystem).temperature, u"celsius"_s);
         QCOMPARE(Units::forMeasurementSystem(QLocale::ImperialUKSystem).windSpeed, u"mph"_s);
-        QCOMPARE(Units::forMeasurementSystem(QLocale::ImperialUSSystem).precipitationSymbol, u"in"_s);
+        QCOMPARE(Units::forMeasurementSystem(QLocale::ImperialUSSystem).precipitation, u"inch"_s);
     }
 
     void parsesGeocoding()

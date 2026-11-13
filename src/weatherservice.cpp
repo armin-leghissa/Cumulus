@@ -189,19 +189,14 @@ QVariant WeatherService::todayTemperatureMax() const
     return hasForecast() ? m_dailyModel->data(m_dailyModel->index(0), DailyForecastModel::TemperatureMaxRole) : QVariant();
 }
 
-QString WeatherService::temperatureSymbol() const
+QString WeatherService::windSpeedUnit() const
 {
-    return m_units.temperatureSymbol;
+    return m_units.windSpeed;
 }
 
-QString WeatherService::windSpeedSymbol() const
+QString WeatherService::precipitationUnit() const
 {
-    return m_units.windSpeedSymbol;
-}
-
-QString WeatherService::precipitationSymbol() const
-{
-    return m_units.precipitationSymbol;
+    return m_units.precipitation;
 }
 
 void WeatherService::refresh()

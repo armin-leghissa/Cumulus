@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cumulus\n"
 "Report-Msgid-Bugs-To: leghissa@zoho.eu\n"
-"POT-Creation-Date: 2026-10-14 18:51+0200\n"
+"POT-Creation-Date: 2026-11-13 09:41+0100\n"
 "PO-Revision-Date: 2026-10-14 18:51+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -119,7 +119,9 @@ msgctxt "@info"
 msgid ""
 "Shows rain only if it rains for at least half of the daylight hours, "
 "otherwise the better part of the day."
-msgstr "Toont regen alleen als het minstens de helft van de daglichturen regent, anders het betere deel van de dag."
+msgstr ""
+"Toont regen alleen als het minstens de helft van de daglichturen regent, "
+"anders het betere deel van de dag."
 
 #: package/contents/ui/ConfigGeneral.qml:141
 #, kde-format
@@ -127,7 +129,9 @@ msgctxt "@info"
 msgid ""
 "Shows rain if it rains for at least a quarter of the daylight hours, "
 "otherwise the typical weather of the day."
-msgstr "Toont regen als het minstens een kwart van de daglichturen regent, anders het typische weer van de dag."
+msgstr ""
+"Toont regen als het minstens een kwart van de daglichturen regent, anders "
+"het typische weer van de dag."
 
 #: package/contents/ui/ConfigGeneral.qml:142
 #, kde-format
@@ -135,7 +139,8 @@ msgctxt "@info"
 msgid ""
 "Shows rain as soon as it rains during daylight, otherwise the worse part of "
 "the day."
-msgstr "Toont regen zodra het overdag regent, anders het slechtere deel van de dag."
+msgstr ""
+"Toont regen zodra het overdag regent, anders het slechtere deel van de dag."
 
 #: package/contents/ui/ConfigGeneral.qml:153
 #, kde-format
@@ -175,11 +180,35 @@ msgid_plural "%1 minutes"
 msgstr[0] "%1 minuut"
 msgstr[1] "%1 minuten"
 
-#: package/contents/ui/Format.qml:54
+#: package/contents/ui/Format.qml:58
 #, kde-format
 msgctxt "@label percentage"
 msgid "%1 %"
 msgstr "%1%"
+
+#: package/contents/ui/Format.qml:67
+#, kde-format
+msgctxt "@label wind speed in miles per hour"
+msgid "%1 mph"
+msgstr "%1 mph"
+
+#: package/contents/ui/Format.qml:68
+#, kde-format
+msgctxt "@label wind speed in kilometres per hour"
+msgid "%1 km/h"
+msgstr "%1 km/u"
+
+#: package/contents/ui/Format.qml:76
+#, kde-format
+msgctxt "@label precipitation amount in inches"
+msgid "%1 in"
+msgstr "%1 inch"
+
+#: package/contents/ui/Format.qml:77
+#, kde-format
+msgctxt "@label precipitation amount in millimetres"
+msgid "%1 mm"
+msgstr "%1 mm"
 
 #: package/contents/ui/FullRepresentation.qml:72
 #, kde-format

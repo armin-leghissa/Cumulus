@@ -109,8 +109,8 @@ ColumnLayout {
             hourly: false
             columnWidth: full.columnWidth
             selectedIndex: full.selectedDay
-            windSpeedSymbol: full.weather.windSpeedSymbol
-            precipitationSymbol: full.weather.precipitationSymbol
+            windSpeedUnit: full.weather.windSpeedUnit
+            precipitationUnit: full.weather.precipitationUnit
             onColumnClicked: index => full.selectDay(index)
         }
 
@@ -136,8 +136,8 @@ ColumnLayout {
             model: full.weather.hourlyModel
             hourly: true
             columnWidth: full.columnWidth
-            windSpeedSymbol: full.weather.windSpeedSymbol
-            precipitationSymbol: full.weather.precipitationSymbol
+            windSpeedUnit: full.weather.windSpeedUnit
+            precipitationUnit: full.weather.precipitationUnit
 
             // selection follows scrolling: the day of the first visible hour
             function syncSelectedDay() {

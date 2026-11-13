@@ -16,8 +16,8 @@ Flickable {
     required property real columnWidth
     required property bool hourly // hourly: one temperature line, hour labels, night shading
     property int selectedIndex: -1 // highlighted column (daily chart)
-    property string windSpeedSymbol
-    property string precipitationSymbol
+    property string windSpeedUnit
+    property string precipitationUnit
 
     readonly property int count: columns.count
     // first column that is at least half visible
@@ -190,7 +190,7 @@ Flickable {
                     horizontalAlignment: Text.AlignHCenter
                     font: Kirigami.Theme.smallFont
                     opacity: 0.8
-                    text: Format.windSpeed(column.model.windSpeed, chart.windSpeedSymbol)
+                    text: Format.windSpeed(column.model.windSpeed, chart.windSpeedUnit)
                 }
             }
 
@@ -215,7 +215,7 @@ Flickable {
                 horizontalAlignment: Text.AlignHCenter
                 font: Kirigami.Theme.smallFont
                 opacity: column.fallback ? 0.5 : 0.9
-                text: Format.precipitation(column.model.precipitationAmount, chart.precipitationSymbol)
+                text: Format.precipitation(column.model.precipitationAmount, chart.precipitationUnit)
                 visible: text !== "" && column.barHeight > 0
             }
 

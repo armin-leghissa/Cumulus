@@ -19,7 +19,7 @@ trap 'rm -f "$pot"' EXIT
 # Same keywords as KDE's extraction (Messages.sh); QML is parsed like C++.
 mapfile -t sources < <(find package src -name '*.qml' -o -name '*.cpp' | sort)
 xgettext --from-code=UTF-8 -C --kde \
-    -ci18n -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 \
+    -ci18n -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 -ki18nd:2 -ki18ndc:2c,3 \
     --package-name=cumulus --msgid-bugs-address=leghissa@zoho.eu \
     -o "$pot" "${sources[@]}"
 

@@ -8,15 +8,10 @@
 
 // Units follow the system measurement setting (LC_MEASUREMENT), see docs/ui-guidelines.md.
 struct Units {
-    // API parameter values
+    // API parameter values, also passed to QML, which shows the translated unit symbols
     QString temperature; // celsius | fahrenheit
     QString windSpeed; // kmh | mph
     QString precipitation; // mm | inch
-
-    // display symbols
-    QString temperatureSymbol;
-    QString windSpeedSymbol;
-    QString precipitationSymbol;
 
     static Units forMeasurementSystem(QLocale::MeasurementSystem system);
     static Units fromSystem();
