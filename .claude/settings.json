@@ -1,0 +1,22 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(cmake --build ../Cumulus_build:*)",
+            "Bash(ctest --test-dir ../Cumulus_build:*)",
+            "Bash(tools/update-translations.sh:*)",
+            "Bash(tools/run-plasmoidviewer.sh:*)",
+            "Bash(.claude/skills/test-applet/run.sh:*)",
+            "Bash(msgfmt --check:*)",
+            "Bash(git status:*)",
+            "Bash(git diff:*)",
+            "Bash(git log:*)",
+            "Bash(git show:*)",
+            "Bash(pgrep:*)",
+            "Bash(locale -a)"
+        ],
+        "ask": [
+            "Bash(cmake --build ../Cumulus_build --target install-system:*)",
+            "Bash(cmake --build ../Cumulus_build --target uninstall-system:*)"
+        ]
+    }
+}

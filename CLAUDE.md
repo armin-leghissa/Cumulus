@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Cumulus is a KDE Plasma 6 applet (plasmoid) with a mixed C++/QML implementation, generated from KDevelop's "Plasma Applet mixed C++/QML" template. It is still at the skeleton stage: the C++ and QML are template code that will be replaced.
+Cumulus is a KDE Plasma 6 applet (plasmoid) that shows a 14-day weather forecast (min/max temperature, precipitation probability) and an hourly forecast from Open-Meteo. C++ backend, QML UI.
 
-Stack: Qt ≥ 6.7 (Quick, Core, Gui), KF6 (I18n, Config), Plasma 6, ECM/CMake ≥ 3.16.
+Stack: C++20, Qt ≥ 6.7 (Core, Network, Qml), ECM/CMake ≥ 3.16, gettext (translations); at runtime Plasma 6, Kirigami and KQuickCharts.
 
 ## Build & run
 
@@ -20,7 +20,7 @@ tools/run-plasmoidviewer.sh   # plasmoidviewer -a ../Cumulus_build/package (CUMU
 
 The applet is a Plasma package, assembled by the build in `../Cumulus_build/package` (docs/decisions.md D9): `package/` from the source tree is copied there (target `cumulus_package`), and the C++ QML module is built into `contents/lib/io/github/leghissa/cumulus/`. The QML files import it by relative path, so neither `QT_PLUGIN_PATH` nor `QML_IMPORT_PATH` is needed. The KDevelop launch config (`.kdev4/Cumulus.kdev4`, not versioned) is a native launcher that runs the script after building the project (KDevelop rejects shell metacharacters such as `=` in launcher arguments).
 
-Install targets (top-level `CMakeLists.txt`): `install-user` (`~/.local`), `install-system` (`/usr` via `pkexec`), `uninstall-user`, `uninstall-system`; plain `install`/`uninstall` follow the cache variable `CUMULUS_INSTALL_MODE` (USER by default). Everything installs into `<prefix>/share/plasma/plasmoids/io.github.leghissa.cumulus/`, and all targets restart plasmashell via `tools/restart-plasmashell.sh` afterwards. **When installing yourself to test, set `CUMULUS_NO_RESTART=1`** so the user's running shell is not restarted.
+Install targets (top-level `CMakeLists.txt`): `install-user` (`~/.local`), `install-system` (`/usr` via `pkexec`), `uninstall-user`, `uninstall-system`; plain `install`/`uninstall` follow the cache variable `CUMULUS_INSTALL_MODE` (USER by default). Everything installs into `<prefix>/share/plasma/plasmoids/io.github.leghissa.cumulus/`, and all targets restart plasmashell via `tools/restart-plasmashell.sh` afterwards. Setting `CUMULUS_NO_RESTART=1` skips the restart; when testing, restart on purpose, so the user can try the change by hand right away.
 
 Tests (QtTest via `ecm_add_tests`, in `autotests/`, no network; `autotests/data/` holds a recorded API response):
 
@@ -29,7 +29,7 @@ ctest --test-dir ../Cumulus_build --output-on-failure
 ctest --test-dir ../Cumulus_build -R weathercodetest   # single test; or run ../Cumulus_build/bin/weathercodetest <testfunction>
 ```
 
-plasmoidviewer resets its applet configuration on every start and on every form factor switch, so it then shows the "not configured" state (Plasma's green placeholder icon with a "Configure…" button). To test with a location, install with `CUMULUS_NO_RESTART=1 cmake --build ../Cumulus_build --target install-user` and run `plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`. Network failures and retries are logged in the category `io.github.leghissa.cumulus` (warnings by default), e.g. `journalctl --user -u plasma-plasmashell.service | grep leghissa`.
+plasmoidviewer resets its applet configuration on every start and on every form factor switch, so it then shows the "not configured" state (Plasma's green placeholder icon with a "Configure…" button). To test with a location, install with `cmake --build ../Cumulus_build --target install-user` and run `plasmawindowed io.github.leghissa.cumulus`, which keeps its config in `~/.config/plasmawindowedrc` (`[Applets][<id>][Configuration][General]`: `locationName`, `latitude`, `longitude`). The forecast cache is in `~/.cache/cumulus/`. Network failures and retries are logged in the category `io.github.leghissa.cumulus` (warnings by default), e.g. `journalctl --user -u plasma-plasmashell.service | grep leghissa`. The skill `/test-applet [locale …]` (`.claude/skills/test-applet/`) does install, screenshots and log check in one go.
 
 ## Architecture
 
@@ -53,6 +53,14 @@ Details and reasoning live in `docs/decisions.md` (technical) and `docs/ui-guide
 - The day icon is computed in C++ from the hourly codes between sunrise and sunset, not taken from the API's daily code (which shows the worst condition of the day). A setting selects optimistic, average (median) or pessimistic.
 - Icons come only from the system icon theme. Units follow the system measurement setting (`QLocale::system().measurementSystem()`), with no unit setting.
 
+## Definition of done
+
+A change is done when:
+1. it builds without new warnings and `ctest` passes; new logic in `cumulus_core` has unit tests;
+2. user-visible strings are translated: `tools/update-translations.sh`, then all languages complete (`msgfmt --statistics` shows no untranslated or fuzzy entries);
+3. UI changes are checked visually on the installed applet (`/test-applet`), translation and formatting changes also in another locale (e.g. `ru_RU`, `en_US` for imperial units and the 12-hour clock);
+4. `docs/decisions.md`, `docs/ui-guidelines.md`, README and this file are updated where the change affects them.
+
 ## Conventions
 
 **Language:** Code, identifiers, comments, commit messages and repository documentation (README, CLAUDE.md, docs/) are in English. Talk to the user in German. Never use gendering, only correct and precise grammar.
@@ -62,5 +70,9 @@ Details and reasoning live in `docs/decisions.md` (technical) and `docs/ui-guide
 - C++ holds the program logic: networking, parsing, data models (`QAbstractListModel` subclasses), caching, unit conversion, time and date calculations, configuration handling, and anything else that is non-trivial or worth unit testing.
 - C++ is exposed to QML as custom QML types or helper classes (`QML_ELEMENT` / `QML_SINGLETON`) via properties, signals, and `Q_INVOKABLE`. QML only binds and reacts to them.
 - Keep JavaScript in QML to small expressions and display formatting. No `XMLHttpRequest`, data processing or business rules in QML/JS.
+
+**Git:** Commit and push only when the user asks. Author email is `leghissa@zoho.eu` (set in the repo config). Commit messages: imperative subject line, a body that explains why, and the `Co-Authored-By` trailer. Remote is `github`, branch `master`.
+
+**Testing hygiene:** Screenshots only of the applet's own window, through `/test-applet`, which makes sure that window is the active one; never of the whole screen or an unchecked active window (it may be the user's mail). Stop test instances (plasmawindowed, plasmoidviewer) with SIGTERM and check with `pgrep` that none is left. Remove temporary test code before reporting.
 
 License: LGPL-2.1-or-later (SPDX headers on source files).
